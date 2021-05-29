@@ -21,10 +21,8 @@ app.use(morgan("tiny"));
 app.use(authenticateJWT);
 
 //routes
-
-
-
-
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 
 /** Handle 404 errors -- this matches everything */

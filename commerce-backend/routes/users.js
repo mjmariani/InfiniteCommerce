@@ -49,7 +49,7 @@ router.post("/", ensureAdmin, async function (req, res, next){
     }
 });
 
-/** GET / => { users: [ {username, first_name, last_name, email, is_admin, shopping_cart_id }, ...]}   
+/** GET / => { users: [ {username, first_name, last_name, email, is_admin }, ...]}   
  * 
  * Returns list of all users
  * 
@@ -133,7 +133,7 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * Get all items in shopping cart for a user
  * 
  * @params: username, user_id
- * @returns: { shopping_cart_id, items: [ {item_id, store_name }, ... ]} 
+ * @returns: { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id }, ... ]} 
  * 
  * Authorization required by either the admin or same as user as: username
  */
@@ -149,11 +149,11 @@ router.get("/:username/:user_id/shoppingcart", ensureCorrectUserOrAdmin, async f
 
 });
 
-/** POST /[username]/[user_id]/shoppingcart/[store_name]/[item_id] => { shopping_cart_id, items: [ {item_id, store_name }, ... ]}
+/** POST /[username]/[user_id]/shoppingcart/[store_name]/[item_id] => { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id }, ... ]}
  * 
  * Add an item to a user's shopping cart
  * @params: username, user_id
- * @returns: { shopping_cart_id, items: [ {item_id, store_name }, ... ]} 
+ * @returns: { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id }, ... ]} 
  * 
  * Authorization required by either the admin or same as user as: username
  */
@@ -187,7 +187,7 @@ router.delete("/:username/:user_id/shoppingcart/:store_name/:item_id", ensureCor
     }catch(err){
         next(err);
     }
-})
+});
 
 /** POST /[username]/[user_id]/shoppingcart => (new shopping cart) { shopping_cart_id, items: [ {item_id, store_name }, ... ]}
  * 
@@ -204,4 +204,6 @@ router.post("/:username/:user_id/shoppingcart", ensureCorrectUserOrAdmin, async 
     }catch(err){
         return next(err);
     }
-})
+});
+
+module.exports = router;

@@ -52,7 +52,7 @@ async function commonBeforeAll() {
     (1, 'Amazon', ${shopping_cart_id_user_id_admin}),
     (2, 'Amazon', ${shopping_cart_id_user_id_admin}),
     (3, 'Ebay', ${shopping_cart_id_user_id_admin})
-    `)
+    `);
 
 }
 

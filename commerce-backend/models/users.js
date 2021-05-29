@@ -56,7 +56,7 @@ static async authenticate(username, password){
 **/
 
 static async register( 
-    {username, password, firstName, lastName, email, isAdmin}
+    {username, password, firstName, lastName, email, isAdmin = false}
 ){
     const checkDuplicateUsers = await db.query( 
         `SELECT username
@@ -94,7 +94,7 @@ static async register(
     );
 
     //add shopping cart id into users object
-    user['shopping_cart_id'] = userShoppingCartResult.rows[0].shopping_cart_id;
+    user['shopping_cart_id'] = userShoppingCartResult.rows[0];
 
     // const shoppingCartCache = await db.query( 
     //     `UPDATE users
@@ -123,17 +123,16 @@ static async findAll() {
 
 /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, email, is_admin }
+   * Returns { username, first_name, last_name, email, is_admin, shopping_cart_id }
    *
    * Throws NotFoundError if user not found.
    **/
 
 static async get(username){
     const userRes = await db.query( 
-        `SELECT users.user_id, users.username, users.first_name AS "firstName, users.last_name AS "lastName", users.email, users.is_admin AS "isAdmin"
+        `SELECT users.user_id, users.username, users.first_name AS "firstName, users.last_name AS "lastName", users.email, users.is_admin AS "isAdmin", shopping_cart.shopping_cart_id
         FROM users INNER JOIN shopping_cart ON users.user_id = shopping_cart.user_id
-        WHERE (username = $1 AND shopping_cart.is_closed = $2)
-        RETURNING username, firstName, lastName, email, isAdmin`,
+        WHERE (username = $1 AND shopping_cart.is_closed = $2)`,
         [username, false],
     );
 
@@ -422,4 +421,4 @@ static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
 }
 }
 
-module.exports = User;
+module.exports = Users;
