@@ -20,5 +20,5 @@ CREATE TABLE item (
   item_id INTEGER PRIMARY KEY,
   store_name TEXT,
   shopping_cart_id INTEGER NOT NULL
-     REFERENCES shopping_cart ON DELETE CASCADE
+    REFERENCES shopping_cart ON DELETE CASCADE
 );

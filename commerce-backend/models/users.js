@@ -25,7 +25,7 @@ static async authenticate(username, password){
     try{
        //try to find the user first
     const queryResult = await db.query( 
-        `SELECT username, first_name, last_name, email, is_admin
+        `SELECT username, password, first_name, last_name, email, is_admin
         FROM users 
         WHERE username = $1`,[username],
     );
@@ -242,8 +242,7 @@ static async findShoppingCartByUserId(userId){
     const result = await db.query( 
         `SELECT shopping_cart_id
         FROM shopping_cart
-        WHERE (user_id = $1 AND is_closed = $2)
-        RETURNING shopping_cart_id`,
+        WHERE (user_id = $1 AND is_closed = $2)`,
         [userId, false]
     );
 
@@ -260,8 +259,7 @@ static async findShoppingCartByUserId(userId){
     const userId = await db.query( 
         `SELECT user_id, username
         FROM users
-        WHERE (username = $1)
-        RETURNING user_id`,
+        WHERE (username = $1)`,
         [username],
     );
     
@@ -272,8 +270,7 @@ static async findShoppingCartByUserId(userId){
     const result = await db.query( 
         `SELECT shopping_cart_id
         FROM shopping_cart
-        WHERE (user_id = $1 AND is_closed = $2)
-        RETURNING shopping_cart_id`,
+        WHERE (user_id = $1 AND is_closed = $2)`,
         [userIdRes, false]
     );
 
@@ -370,8 +367,7 @@ static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
         `SELECT item.item_id, item.store_name, item.shopping_cart_id, shopping_cart.user_id
         FROM item
         INNER JOIN shopping_cart ON item.shopping_cart_id = shopping_cart.shopping_cart_id
-        WHERE (item.shopping_cart = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)
-        RETURNING item_id, shopping_cart_id, store_name`,
+        WHERE (item.shopping_cart = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,
         [shopping_cart_id, user_id, false]
     );
 
