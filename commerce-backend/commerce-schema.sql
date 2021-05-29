@@ -18,6 +18,7 @@ CREATE TABLE shopping_cart (
 
 CREATE TABLE item (
   item_id INTEGER PRIMARY KEY,
+  quantity INTEGER DEFAULT 1,
   store_name TEXT,
   shopping_cart_id INTEGER NOT NULL
     REFERENCES shopping_cart ON DELETE CASCADE

@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
+//let sandbox;
 
 async function commonBeforeAll() {
     await db.query("DELETE FROM users");
@@ -28,6 +29,12 @@ async function commonBeforeAll() {
     const shopping_cart_id_user_id_1 = await db.query(` 
     INSERT INTO shopping_cart (user_id)
     VALUES (${ user_id_1 })
+    RETURNING shopping_cart_id 
+    `);
+
+    await db.query(` 
+    INSERT INTO shopping_cart (user_id, is_closed)
+    VALUES (${ user_id_1 }, TRUE)
     RETURNING shopping_cart_id 
     `);
 

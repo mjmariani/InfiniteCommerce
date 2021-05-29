@@ -8,9 +8,9 @@ const cors = require("cors");
 const { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError } = require("./expressError");
 
 const { authenticateJWT } = require("./middleware/auth");
-const authRoutes = require("./routes/auth");
 //importing of routes
-
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
 const morgan = require("morgan");
 
 const app = express();

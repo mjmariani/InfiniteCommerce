@@ -25,7 +25,7 @@ static async authenticate(username, password){
     try{
        //try to find the user first
     const queryResult = await db.query( 
-        `SELECT username, password, first_name, last_name, email, is_admin
+        `SELECT user_id, username, password, first_name, last_name, email, is_admin
         FROM users 
         WHERE username = $1`,[username],
     );
@@ -246,6 +246,10 @@ static async findShoppingCartByUserId(userId){
         [userId, false]
     );
 
+    if(!result.rows[0]){
+        throw new NotFoundError(`No user id: ${userId} exists in the database`); 
+    }
+
     return result.rows[0];
 }
 
@@ -262,6 +266,11 @@ static async findShoppingCartByUserId(userId){
         WHERE (username = $1)`,
         [username],
     );
+    
+    //if username is not found, throw error instance of NotFoundError
+    if(!userId.rows[0]){
+        throw new NotFoundError(`No username: ${username} exists in the database`); 
+    }
     
     //user id from database 
     const userIdRes = userId.rows[0];
@@ -313,7 +322,7 @@ return setNewShoppingCart.rows[0].shopping_cart_id;
 
 /** Add an item to current shopping cart for User
  * 
- * @params user, item_id, store_name
+ * @params shopping_cart_id, item_id, store_name
  * @returns itemId
  */
 static async addItem(shopping_cart_id, itemId, store_name){
@@ -321,17 +330,53 @@ static async addItem(shopping_cart_id, itemId, store_name){
     //getting user's current opened shopping cart id
     //const userShoppingCart = user.shopping_cart_id;
 
+    const shoppingCartId = await db.query(
+        `SELECT shopping_cart_id
+        FROM shopping_cart
+        WHERE shopping_cart = $1`,
+        [shopping_cart_id]
+    )
+
+    if(!shoppingCartId) return undefined
+
     const addItem = await db.query( 
         `INSERT INTO item
-        (shopping_cart, store_name)
-        VALUES ($1, $2)
+        (item_id, shopping_cart, store_name)
+        VALUES ($1, $2, $3)
         RETURNING item_id`,
-        [shopping_cart_id, store_name]
+        [itemId, shopping_cart_id, store_name]
     );
 
     return addItem.rows[0];
-
 }
+
+/** Update quantity of an item to current shopping cart for User
+ * 
+ * @params shopping_cart_id, item_id, store_name, quantity
+ * @returns itemId, quantity
+ */
+ static async updateQuantityOfItem(shopping_cart_id, itemId, store_name, quantity){
+
+    const shoppingCartId = await db.query(
+        `SELECT shopping_cart_id
+        FROM shopping_cart
+        WHERE shopping_cart = $1`,
+        [shopping_cart_id]
+    )
+
+    if(!shoppingCartId) return undefined
+
+    const addItem = await db.query( 
+        `UPDATE item
+        SET quantity = $1
+        WHERE (shopping_cart_id = $2 AND item_id = $3 AND store_name = $4)
+        RETURNING item_id, quantity`,
+        [quantity, shopping_cart_id, itemId, store_name]
+    );
+
+    return addItem.rows[0];
+}
+
 
 /** Delete an item to current shopping cart for User
  * 
@@ -348,6 +393,8 @@ static async addItem(shopping_cart_id, itemId, store_name){
         WHERE (shopping_cart = $1 AND store_name = $2 AND item_id = $3)`,
         [shopping_cart_id, store_name, itemId]
     );
+    
+    if(!deleteItem) return "not successful"
 
     return "successful";
 }catch(error){
@@ -364,7 +411,7 @@ static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
     //const user_id = user.user_id;
 
     const allItems = await db.query(
-        `SELECT item.item_id, item.store_name, item.shopping_cart_id, shopping_cart.user_id
+        `SELECT item.item_id, item.store_name, item.shopping_cart_id
         FROM item
         INNER JOIN shopping_cart ON item.shopping_cart_id = shopping_cart.shopping_cart_id
         WHERE (item.shopping_cart = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,
