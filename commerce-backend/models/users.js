@@ -4,9 +4,9 @@ const db = require("../db");
 const bcrypt = require("bcrypt");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 const {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
+NotFoundError,
+BadRequestError,
+UnauthorizedError,
 } = require("../expressError");
 
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
@@ -96,12 +96,12 @@ static async register(
     //add shopping cart id into users object
     user['shopping_cart_id'] = userShoppingCartResult.rows[0].shopping_cart_id;
 
-    const shoppingCartCache = await db.query( 
-        `UPDATE users
-        SET shopping_card_id = ${user.shopping_cart_id}
-        WHERE username = ${user.username}
-        RETURNING username, shopping_cart_id`
-    );
+    // const shoppingCartCache = await db.query( 
+    //     `UPDATE users
+    //     SET shopping_card_id = ${user.shopping_cart_id}
+    //     WHERE username = ${user.username}
+    //     RETURNING username, shopping_cart_id`
+    // );
     
     return user;
 
@@ -121,20 +121,20 @@ static async findAll() {
     return result.rows;
 }
 
-
-  /** Given a username, return data about user.
+/** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, is_admin, shopping_cart_id }
+   * Returns { username, first_name, last_name, email, is_admin }
    *
    * Throws NotFoundError if user not found.
    **/
 
 static async get(username){
     const userRes = await db.query( 
-        `SELECT user_id, username, first_name AS "firstName, last_name AS "lastName", email, is_admin AS "isAdmin", shopping_cart_id AS "shoppingCartID"
-        FROM users
-        WHERE username = $1`,
-        [username],
+        `SELECT users.user_id, users.username, users.first_name AS "firstName, users.last_name AS "lastName", users.email, users.is_admin AS "isAdmin"
+        FROM users INNER JOIN shopping_cart ON users.user_id = shopping_cart.user_id
+        WHERE (username = $1 AND shopping_cart.is_closed = $2)
+        RETURNING username, firstName, lastName, email, isAdmin`,
+        [username, false],
     );
 
     const user = userRes.rows[0];
@@ -144,15 +144,13 @@ static async get(username){
     return user;
 }
 
-
-
-  /** Update user data with `data`.
+/** Update user data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain
    * all the fields; this only changes provided ones.
    *
    * Data can include:
-   *   { firstName, lastName, password, email, isAdmin }
+   *   { firstName, lastName, password, email }
    *
    * Returns { username, firstName, lastName, email, isAdmin }
    *
@@ -195,6 +193,24 @@ static async update(username, data){
     return user;
 }
 
+/** Delete given user from database; returns true */
+
+static async remove(username){
+    let result = await db.query( 
+        `DELETE
+        FROM users
+        WHERE username = $1
+        RETURNING username`,
+        [username],
+    );
+    const user = result.rows[0];
+
+    if(!user) throw new NotFoundError(`No user: ${username} found`);
+
+    return true;
+}
+
+
 // /** Add or update/overwrite a store_name to user's opened shopping cart
 //  *  
 //  * 
@@ -218,11 +234,13 @@ static async update(username, data){
 /** Find a shopping cart for User
  * @params: userId
  * @returns: shopping_cart_id
- */
+ **/
 
-static async findShoppingCart(userId){
+static async findShoppingCartByUserId(userId){
+
+
     const result = await db.query( 
-        `SELECT shopping_cart_id, store_name
+        `SELECT shopping_cart_id
         FROM shopping_cart
         WHERE (user_id = $1 AND is_closed = $2)
         RETURNING shopping_cart_id`,
@@ -232,17 +250,47 @@ static async findShoppingCart(userId){
     return result.rows[0];
 }
 
+/** Find a shopping cart for User
+ * @params: username
+ * @returns: shopping_cart_id
+ **/
+
+ static async findShoppingCartByUsername(username){
+
+    const userId = await db.query( 
+        `SELECT user_id, username
+        FROM users
+        WHERE (username = $1)
+        RETURNING user_id`,
+        [username],
+    );
+    
+    //user id from database 
+    const userIdRes = userId.rows[0];
+
+    //get shopping cart id for user
+    const result = await db.query( 
+        `SELECT shopping_cart_id
+        FROM shopping_cart
+        WHERE (user_id = $1 AND is_closed = $2)
+        RETURNING shopping_cart_id`,
+        [userIdRes, false]
+    );
+
+    return result.rows[0];
+}
+
 
 /** Close a shopping cart for User (after checkout)
  * Another shopping cart will be created and attached to user
- * 
- * @returns: shopping_cart_id of new shopping cart
+ * @params: { shopping_cart_id }
+ * @returns: { shopping_cart_id } (returns new shopping cart id)
  */
 
-static async closeShoppingCart(user){
+static async closeShoppingCartByCartId(user_id){
 
 //search for shopping cart with isClosed as false
-const shoppingCartToClose = users.findShoppingCart(user.user_id);
+const shoppingCartToClose = await Users.findShoppingCartByUserId(user_id);
 
 //then set isClosed for that particular shopping cart (got above) to true
 const setClosed = await db.query( 
@@ -266,24 +314,22 @@ const setNewShoppingCart = await db.query(
 return setNewShoppingCart.rows[0].shopping_cart_id;
 }
 
-
-
-
 /** Add an item to current shopping cart for User
  * 
+ * @params user, item_id, store_name
  * @returns itemId
  */
-static async addItem(user, itemId, store_name){
+static async addItem(shopping_cart_id, itemId, store_name){
 
     //getting user's current opened shopping cart id
-    const userShoppingCart = user.shopping_cart_id;
+    //const userShoppingCart = user.shopping_cart_id;
 
     const addItem = await db.query( 
         `INSERT INTO item
         (shopping_cart, store_name)
         VALUES ($1, $2)
         RETURNING item_id`,
-        [userShoppingCart, store_name]
+        [shopping_cart_id, store_name]
     );
 
     return addItem.rows[0];
@@ -294,16 +340,16 @@ static async addItem(user, itemId, store_name){
  * 
  * @returns "successful" if successful, otherwise "not successful"
  */
- static async deleteItem(user, itemId, store_name){
+ static async deleteItem(shopping_cart_id, itemId, store_name){
 
     try{
     //getting user's current opened shopping cart id
-    const userShoppingCart = user.shopping_cart_id;
+    //const userShoppingCart = user.shopping_cart_id;
 
     const deleteItem = await db.query( 
         `DELETE FROM item
-        WHERE (shopping_cart = $1 AND store_name = $2)`,
-        [userShoppingCart, store_name]
+        WHERE (shopping_cart = $1 AND store_name = $2 AND item_id = $3)`,
+        [shopping_cart_id, store_name, itemId]
     );
 
     return "successful";
@@ -313,19 +359,20 @@ static async addItem(user, itemId, store_name){
 }
 
 /**Get User's Shopping Cart with list of items within
- * @params user_id
+ * @params user_id, shopping_cart_id
  * @returns [{item_id, shopping_cart_id, store_name},...]
 */
 
-static async getAllItemsForCurrentCart(user){
+static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
     //const user_id = user.user_id;
 
     const allItems = await db.query(
-        `SELECT item.item_id, item.store_name, item.shopping_cart, shopping_cart.user_id
+        `SELECT item.item_id, item.store_name, item.shopping_cart_id, shopping_cart.user_id
         FROM item
-        RIGHT JOIN ON shopping_cart 
-        WHERE (item.shopping_cart = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,
-        [user.shopping_cart_id, user.user_id, false]
+        INNER JOIN shopping_cart ON item.shopping_cart_id = shopping_cart.shopping_cart_id
+        WHERE (item.shopping_cart = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)
+        RETURNING item_id, shopping_cart_id, store_name`,
+        [shopping_cart_id, user_id, false]
     );
 
     return allItems.rows;
