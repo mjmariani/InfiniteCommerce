@@ -27,7 +27,7 @@ static async authenticate(username, password){
     const queryResult = await db.query( 
         `SELECT user_id, username, password, first_name, last_name, email, is_admin
         FROM users 
-        WHERE username = $1`,[username],
+        WHERE username = $1`, [username]
     );
     const user = queryResult.rows[0];
     
@@ -56,13 +56,12 @@ static async authenticate(username, password){
 **/
 
 static async register( 
-    {username, password, firstName, lastName, email, isAdmin = false}
+    {username, password, firstName, lastName, email, isAdmin}
 ){
     const checkDuplicateUsers = await db.query( 
         `SELECT username
         FROM users
-        WHERE username = $1`,
-        [username],
+        WHERE username = $1`, [username],
     );
 
     //throw bad request error with message that there are duplicate usernames
@@ -168,7 +167,7 @@ static async update(username, data){
         {firstName: "first_name",
         lastName: "last_name",
         password: "password",
-        email: "email"}
+        email: "email"},
     );
 
     //to get the username from the values obj returned from sqlForPartialUpdate
@@ -177,7 +176,7 @@ static async update(username, data){
     const querySql = `UPDATE users
                     SET ${setCols}
                     WHERE username = ${usernameVarIdx}
-                    RETUNING username,
+                    RETURNING username,
                                 first_name AS "firstName",
                                 last_name AS "lastName",
                                 email,
@@ -186,7 +185,9 @@ static async update(username, data){
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
 
-    if(!user) throw new NotFoundError(`No user found by username: ${username}`);
+    if(!user){
+        throw new NotFoundError(`No user found by username: ${username}`); 
+    } 
 
     delete user.password;
     return user;
@@ -413,7 +414,7 @@ static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
         `SELECT item.item_id, item.store_name, item.shopping_cart_id
         FROM item
         INNER JOIN shopping_cart ON item.shopping_cart_id = shopping_cart.shopping_cart_id
-        WHERE (item.shopping_cart = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,
+        WHERE (item.shopping_cart_id = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,
         [shopping_cart_id, user_id, false]
     );
 

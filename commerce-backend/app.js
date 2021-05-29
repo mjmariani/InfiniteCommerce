@@ -8,6 +8,7 @@ const cors = require("cors");
 const { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError } = require("./expressError");
 
 const { authenticateJWT } = require("./middleware/auth");
+const { ensureCorrectUserOrAdmin, ensureAdmin } = require("./middleware/auth");
 //importing of routes
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
@@ -32,7 +33,9 @@ app.use(function (req, res, next) {
   
 /** Generic error handler; anything unhandled goes here. */
 app.use(function (err, req, res, next) {
-    if (process.env.NODE_ENV !== "test") console.error(err.stack);
+    if (process.env.NODE_ENV !== "test") { 
+      console.error(err.stack);
+    }
     const status = err.status || 500;
     const message = err.message;
   

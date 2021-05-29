@@ -9,22 +9,22 @@ async function commonBeforeAll() {
 
     await db.query(` 
     INSERT INTO users (username, password, first_name, last_name, email, is_admin)
-    VALUES ('testuser', '$2y$12$sSi55eDOdXTYxl30cWHSBOyF5YRUAl06A4xxaYKinL1D4RG7vnBk2',
-	'Test', 'User', 'joes@gmail.com', FALSE),
-	('testadmin', '$2y$12$sSi55eDOdXTYxl30cWHSBOyF5YRUAl06A4xxaYKinL1D4RG7vnBk2', 
-	'Test', 'Admin!', 'joes@gmail.com', TRUE)`);
+    VALUES ('testuser','$2y$12$EBbc68ahFTEAGpb/iBEnlunneJU3d.XHoIjrC1JmlEhznasx5yMVq', 'Test', 'User', 'joes@gmail.com', FALSE),
+	         ('testadmin','$2y$12$EBbc68ahFTEAGpb/iBEnlunneJU3d.XHoIjrC1JmlEhznasx5yMVq','Test', 'Admin!', 'joes@gmail.com', TRUE)`
+    );
+
+    const testuser = 'testuser';
+    const testadmin = 'testadmin';
 
     const user_id_1 = await db.query(` 
     SELECT user_id
     FROM users
-    WHERE username = 'testuser'
-    `)
+    WHERE username = testuser`);
 
     const user_id_admin = await db.query(` 
     SELECT user_id
     FROM users
-    WHERE username = 'testadmin'
-    `)
+    WHERE username = testadmin`);
 
     const shopping_cart_id_user_id_1 = await db.query(` 
     INSERT INTO shopping_cart (user_id)
@@ -57,10 +57,12 @@ async function commonBeforeAll() {
 }
 
 async function commonBeforeEach() {
+
     await db.query("BEGIN");
   }
   
   async function commonAfterEach() {
+    await db.query("COMMIT");
     await db.query("ROLLBACK");
   }
   

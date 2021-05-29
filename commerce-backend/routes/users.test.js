@@ -7,7 +7,8 @@ const request = require("supertest");
 
 const db = require("../db.js");
 const app = require("../app");
-const User = require("../models/user");
+const User = require("../models/users");
+//const { ensureCorrectUserOrAdmin, ensureAdmin } = require("../middleware/auth");
 
 const {
   commonBeforeAll,
@@ -39,7 +40,7 @@ describe("POST /users", function () {
           })
           .set("authorization", `Bearer ${adminToken}`);
       expect(resp.statusCode).toEqual(201);
-      expect(resp.body).toEqual({
+      expect(resp.body).toEqual(expect.objectContaining({
         user: {
           username: "u-new",
           firstName: "First-new",
@@ -48,7 +49,7 @@ describe("POST /users", function () {
           isAdmin: false,
           shopping_cart_id: 4
         }, token: expect.any(String),
-      });
+      }));
     });
 
     test("works for admins: create admin", async function () {
@@ -64,7 +65,7 @@ describe("POST /users", function () {
             })
             .set("authorization", `Bearer ${adminToken}`);
         expect(resp.statusCode).toEqual(201);
-        expect(resp.body).toEqual({
+        expect(resp.body).toEqual(expect.objectContaining({
           user: {
             username: "u-new",
             firstName: "First-new",
@@ -73,7 +74,7 @@ describe("POST /users", function () {
             isAdmin: true,
             shopping_cart_id: 4
           }, token: expect.any(String),
-        });
+        }));
       });
 
       test("unauth for users", async function () {
@@ -138,7 +139,7 @@ describe("GET /users", function () {
       const resp = await request(app)
           .get("/users")
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({
+      expect(resp.body).toEqual(expect.objectContaining({
         users: [
           {
             username: "testuser",
@@ -155,7 +156,7 @@ describe("GET /users", function () {
             isAdmin: true,
           },
         ],
-      });
+      }));
     });
 
     //non-admin users should not be able to pull list of all users
@@ -191,7 +192,7 @@ describe("GET /users/:username", function () {
       const resp = await request(app)
           .get(`/users/testuser`)
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({
+      expect(resp.body).toEqual(expect.objectContaining({
         user: {
             username: "testuser",
             firstName: "Test",
@@ -200,14 +201,14 @@ describe("GET /users/:username", function () {
             isAdmin: false,
             shopping_cart_id: 1
         },
-      });
+      }));
     });
 
     test("works for same user", async function () {
         const resp = await request(app)
             .get(`/users/testuser`)
             .set("authorization", `Bearer ${u1Token}`);
-        expect(resp.body).toEqual({
+        expect(resp.body).toEqual(expect.objectContaining({
           user: {
             username: "testuser",
             firstName: "Test",
@@ -216,7 +217,7 @@ describe("GET /users/:username", function () {
             isAdmin: false,
             shopping_cart_id: 1
           },
-        });
+        }));
       });
 
       test("unauth for other users", async function () {
@@ -250,7 +251,7 @@ describe("PATCH /users/:username", () => {
             firstName: "New",
           })
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({
+      expect(resp.body).toEqual(expect.objectContaining({
         user: {
             username: "testuser",
             firstName: "New",
@@ -258,7 +259,7 @@ describe("PATCH /users/:username", () => {
             email: "joes@gmail.com",
             isAdmin: false,
         },
-      });
+      }));
     });
 
     test("works for same user", async function () {
@@ -268,7 +269,7 @@ describe("PATCH /users/:username", () => {
               firstName: "New",
             })
             .set("authorization", `Bearer ${u1Token}`);
-        expect(resp.body).toEqual({
+        expect(resp.body).toEqual(expect.objectContaining({
           user: {
             username: "testuser",
             firstName: "New",
@@ -276,7 +277,7 @@ describe("PATCH /users/:username", () => {
             email: "joes@gmail.com",
             isAdmin: false,
           },
-        });
+        }));
       });
 
       test("unauth if not same user", async function () {
@@ -335,7 +336,7 @@ describe("PATCH /users/:username", () => {
               password: "new-password",
             })
             .set("authorization", `Bearer ${adminToken}`);
-        expect(resp.body).toEqual({
+        expect(resp.body).toEqual(expect.objectContaining({
           user: {
             username: "testuser",
             firstName: "New",
@@ -343,7 +344,7 @@ describe("PATCH /users/:username", () => {
             email: "joes@gmail.com",
             isAdmin: false,
           },
-        });
+        }));
         const isSuccessful = await User.authenticate("testuser", "new-password");
         expect(isSuccessful).toBeTruthy();
       });
@@ -401,7 +402,7 @@ describe("GET /:username/:user_id/shoppingcart", function () {
       const resp = await request(app)
           .get(`/users/testuser/1/shoppingcart`)
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({ 
+      expect(resp.body).toEqual(expect.objectContaining({ 
         shopping_cart_id: 1,
         items: [
             {
@@ -421,14 +422,14 @@ describe("GET /:username/:user_id/shoppingcart", function () {
             },
         ]
 
-       });
+       }));
     });
 
     test("works for same user", async function () {
         const resp = await request(app)
             .get(`/users/testuser/1/shoppingcart`)
             .set("authorization", `Bearer ${u1Token}`);
-        expect(resp.body).toEqual({ 
+        expect(resp.body).toEqual(expect.objectContaining({ 
           shopping_cart_id: 1,
           items: [
               {
@@ -448,7 +449,7 @@ describe("GET /:username/:user_id/shoppingcart", function () {
               },
           ]
   
-         });
+         }));
       });
 
       test("unauth for others", async function () {
@@ -476,7 +477,7 @@ describe("POST /:username/:user_id/shoppingcart/:store_name/:item_id", function 
       const resp = await request(app)
           .post(`/users/testuser/1/shoppingcart/Amazon/56`)
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({ 
+      expect(resp.body).toEqual(expect.objectContaining({ 
         shopping_cart_id: 1,
         items: [
             {
@@ -501,14 +502,14 @@ describe("POST /:username/:user_id/shoppingcart/:store_name/:item_id", function 
             },
         ]
 
-       });
+       }));
     });
 
     test("works for same user", async function () {
         const resp = await request(app)
             .post(`/users/testuser/1/shoppingcart/Amazon/56`)
             .set("authorization", `Bearer ${u1Token}`);
-        expect(resp.body).toEqual({ 
+        expect(resp.body).toEqual(expect.objectContaining({ 
           shopping_cart_id: 1,
           items: [
               {
@@ -533,7 +534,7 @@ describe("POST /:username/:user_id/shoppingcart/:store_name/:item_id", function 
               },
           ]
   
-         });
+         }));
       });
 
       test("unauth for others", async function () {
@@ -568,7 +569,7 @@ describe("DELETE /:username/:user_id/shoppingcart/:store_name/:item_id", functio
         const resp = await request(app)
           .post(`/users/testuser/1/shoppingcart/Amazon/1`)
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({ 
+      expect(resp.body).toEqual(expect.objectContaining({ 
         shopping_cart_id: 1,
         items: [
             {
@@ -583,14 +584,14 @@ describe("DELETE /:username/:user_id/shoppingcart/:store_name/:item_id", functio
             },
         ]
 
-       });
+       }));
     });
 
     test("works for same user", async function () {
         const resp = await request(app)
           .post(`/users/testuser/1/shoppingcart/Amazon/1`)
           .set("authorization", `Bearer ${u1Token}`);
-      expect(resp.body).toEqual({ 
+      expect(resp.body).toEqual(expect.objectContaining({ 
         shopping_cart_id: 1,
         items: [
             {
@@ -605,7 +606,7 @@ describe("DELETE /:username/:user_id/shoppingcart/:store_name/:item_id", functio
             },
         ]
 
-       });
+       }));
     });
 
     test("does not work for other user", async function () {
@@ -632,21 +633,21 @@ describe("POST /:username/:user_id/shoppingcart", function () {
         const resp = await request(app)
           .post(`/users/testuser/1/shoppingcart`)
           .set("authorization", `Bearer ${adminToken}`);
-      expect(resp.body).toEqual({ 
+      expect(resp.body).toEqual(expect.objectContaining({ 
         shopping_cart_id: 4,
         items: [{
 
         }
         ]
 
-       });
+       }));
     });
 
     test("works for same user", async function () {
         const resp = await request(app)
           .post(`/users/testuser/1/shoppingcart`)
           .set("authorization", `Bearer ${u1Token}`);
-      expect(resp.body).toEqual({ 
+      expect(resp.body).toEqual(expect.objectContaining({ 
         shopping_cart_id: 4,
         items: [
             {
@@ -654,7 +655,7 @@ describe("POST /:username/:user_id/shoppingcart", function () {
             }
         ]
 
-       });
+       }));
     });
 
     test("unauth for other user", async function () {

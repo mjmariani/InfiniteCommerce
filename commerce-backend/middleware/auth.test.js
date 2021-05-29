@@ -31,7 +31,7 @@ describe("authenticateJWT", function () {
     expect(res.locals).toEqual({
       user: {
         iat: expect.any(Number),
-        username: "test",
+        username: "testuser",
         isAdmin: false,
       },
     });
@@ -131,7 +131,7 @@ describe("ensureCorrectUserOrAdmin", function () {
   test("works: same user", function () {
     expect.assertions(1);
     const req = { params: { username: "testuser" } };
-    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const res = { locals: { user: { username: "testuser", isAdmin: false } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };
