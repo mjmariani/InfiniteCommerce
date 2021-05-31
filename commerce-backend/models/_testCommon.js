@@ -7,10 +7,13 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 async function commonBeforeAll() {
     await db.query("DELETE FROM users");
 
+    await db.query(`ALTER SEQUENCE users_user_id_seq RESTART WITH 1`);
+
     await db.query(` 
     INSERT INTO users (username, password, first_name, last_name, email, is_admin)
-    VALUES ('testuser','$2y$12$EBbc68ahFTEAGpb/iBEnlunneJU3d.XHoIjrC1JmlEhznasx5yMVq', 'Test', 'User', 'joes@gmail.com', FALSE),
-	         ('testadmin','$2y$12$EBbc68ahFTEAGpb/iBEnlunneJU3d.XHoIjrC1JmlEhznasx5yMVq','Test', 'Admin!', 'joes@gmail.com', TRUE)`
+    VALUES 
+      ('testuser','$2y$12$EBbc68ahFTEAGpb/iBEnlunneJU3d.XHoIjrC1JmlEhznasx5yMVq', 'Test', 'User', 'joes@gmail.com', FALSE),
+	    ('testadmin','$2y$12$EBbc68ahFTEAGpb/iBEnlunneJU3d.XHoIjrC1JmlEhznasx5yMVq','Test', 'Admin!', 'joes@gmail.com', TRUE)`
     );
 
     const testuser = 'testuser';
@@ -19,12 +22,12 @@ async function commonBeforeAll() {
     const user_id_1 = await db.query(` 
     SELECT user_id
     FROM users
-    WHERE username = testuser`);
+    WHERE username = ${testuser}`);
 
     const user_id_admin = await db.query(` 
     SELECT user_id
     FROM users
-    WHERE username = testadmin`);
+    WHERE username = ${testadmin}`);
 
     const shopping_cart_id_user_id_1 = await db.query(` 
     INSERT INTO shopping_cart (user_id)

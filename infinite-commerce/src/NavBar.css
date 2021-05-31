@@ -1,0 +1,24 @@
+.nav{
+    margin-right: -20%;
+}
+
+.navLogo{
+    margin-left: -22%;
+
+}
+
+Button{
+    color: white;
+}
+
+.cart:focus{
+    color: rgba(255, 254, 254, 0.986);
+}
+
+.cart:active{
+    color: rgba(255, 254, 254, 0.986);
+}
+
+.cart{
+    color: rgb(212, 211, 211);
+}

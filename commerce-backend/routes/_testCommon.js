@@ -10,6 +10,8 @@ const { createToken } = require("../helpers/tokens");
 async function commonBeforeAll() {
     await db.query("DELETE FROM users");
 
+    await db.query(`ALTER SEQUENCE users_user_id_seq RESTART WITH 1`);
+
     const testUser = await User.register({
         username: "testuser",
         password: "password",
