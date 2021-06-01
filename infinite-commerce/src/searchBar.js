@@ -7,8 +7,8 @@ import {
     Button, Input, Form, FormGroup, Label
 } from "reactstrap";
 import { makeStyles, IconButton, Collapse } from '@material-ui/core';
-import Alert from '@material-ui/lab';
-import CloseIcon from '@material-ui/icons';
+
+
 //Re-write into modern React using hooks later on using useEffect and useState
 
 function SearchBar ({ searchData }) {
@@ -26,53 +26,34 @@ function SearchBar ({ searchData }) {
 
     const updateLoading = () => setLoading(!loading);
     const setErrorMsg = (message) => setError(message)
-    // Filter logic
+    const setResultsData = (data) => setResultsData(data)
+
+    // Calling External API to get product data
     let getSuggestions = async (value) => {
         updateLoading();
         const inputValue = value.trim().toLowerCase();
-        let response = axios.get('https://api.rainforestapi.com/request', { ...params, search_term: `${inputValue}`, })
-        .then(response => {
-          // print the JSON response from Rainforest API
-        console.log(JSON.stringify(response.data, 0, 2));
-
-        }).catch(error => {
-          // catch and print the error
-        console.log(error);
-        updateLoading();
-        setErrorMsg(error.message);
-        })
-        let data = await JSON.stringify(response.search_results);
-        updateLoading();
-        setResults(data);
+        try{
+            let response = axios.get('https://api.rainforestapi.com/request', { ...params, search_term: `${inputValue}`, })
+            let data = await JSON.stringify(response.search_results);
+            updateLoading();
+            setResultsData(data);
+        }catch(error){
+            updateLoading();
+            setErrorMsg(error.message);
+        }
     };
 
         // Adding AutoSuggest component
         if(loading === true){
-            return (<p>Loading...</p>) 
+            return (<h1>Loading...</h1>) 
         }else if(error != ''){
             
             return (
             <>
-            <div className={classes.root}>
-            <Collapse in={open}>
-                <Alert severity = "error"
-                action={
-                    <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                setOpen(false);
-                }}
-                >
-                <CloseIcon fontSize="inherit" />
-                </IconButton>
-                }
-                    >
-                {error.message}
-                    </Alert>
-                    </Collapse>
-                    </div>
+            
+            <div class="alert alert-danger">
+                <strong>{error.message}</strong> 
+            </div>
             <Form onSubmit={(evt)=>{evt.preventDefault(); getSuggestions(data);}}>
             <Label htmlFor="header-search"> 
             <span className="visually-hidden">Search products</span>
