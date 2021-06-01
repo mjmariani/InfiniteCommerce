@@ -5,7 +5,7 @@ import "./SignUp.css";
 function SignUp(){
 
     return( 
-        <div class="sign-up-form">
+        <div className="sign-up-form">
             <h2>Sign Up!</h2>
             <p></p>
             <Form>

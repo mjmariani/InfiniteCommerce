@@ -5,6 +5,8 @@ import MoreInfo from "./moreInfo";
 import SignUp from "./SignUp";
 import LogIn from "./LogIn";
 import EditProfile from "./EditProfile";
+import ProductPage from "./productPage";
+import Description from "./description";
 import { Route, Switch, Redirect, Link, BrowserRouter, useParams } from "react-router-dom";
 
 function Home(){
@@ -28,6 +30,12 @@ function Home(){
                     </Route>
                     <Route exact path="/profile" >
                         <EditProfile />
+                    </Route>
+                    <Route exact path="/products" >
+                        <ProductPage />
+                    </Route>
+                    <Route exact path="/description" >
+                        <Description />
                     </Route>
                 </Switch>
             </BrowserRouter>
