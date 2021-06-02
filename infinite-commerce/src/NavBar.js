@@ -12,6 +12,7 @@ import {IconButton} from '@material-ui/core'
 import ShoppingCartProductCard from "./shoppingCartProductCard";
 import { SvgIcon } from '@material-ui/core';
 import { Drawer, Button, List, Divider, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+
 //Source: https://material-ui.com/components/drawers/#temporary-drawer
 
 function NavBar(){
@@ -48,7 +49,10 @@ const [check, setCheck] = useState(false);
       onClick={toggleDrawer(anchor, false)}
       onKeyDown={toggleDrawer(anchor, false)}
     ><ShoppingBasketIcon />
-      
+      <List>
+        //implement shopping cart by looping through shoppingproduct card and making calls to db to get items
+        
+      </List>
     </div>
   );
 

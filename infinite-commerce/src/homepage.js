@@ -8,9 +8,11 @@ import EditProfile from "./EditProfile";
 import ProductPage from "./productPage";
 import Description from "./description";
 import { Route, Switch, Redirect, Link, BrowserRouter, useParams } from "react-router-dom";
+import React, {useState} from 'react';
 
 function Home(){
     document.body.style.backgroundImage = "url('https://media.giphy.com/media/kG3EDN0eXqq4V1Pd6W/giphy.gif')";
+
     return( 
         <div className="Home">
             <BrowserRouter>

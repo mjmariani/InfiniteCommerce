@@ -9,69 +9,63 @@ import {
 import { makeStyles, IconButton, Collapse } from '@material-ui/core';
 
 
-//Re-write into modern React using hooks later on using useEffect and useState
+//Note: implement autocomplete feature later on
 
-function SearchBar ({ searchData }) {
-    let [results, setResults] = useState(searchData);
+function SearchBar ({ searchData, error, filterData }) {
+    
     let [data, setData] = useState('');
-    let [loading, setLoading] = useState(false);
-    let [error, setError] = useState("");
 
-    const params = {
+    let params = {
         api_key: "2D5E73AFE55F452888AC418D292FD570",
         type: "search",
         amazon_domain: "amazon.com",
-        sort_by: "price_low_to_high"
     };
 
-    const updateLoading = () => setLoading(!loading);
-    const setErrorMsg = (message) => setError(message)
-    const setResultsData = (data) => setResultsData(data)
+    // const { useState, useRef } = React
 
+    // const Counter = () => {
+    // const [count, setCount] = useState(0)
+    // const counterEl = useRef(null)
+
+    // const increment = () => {
+    // setCount(count + 1)
+    // console.log(counterEl)
+    // }
+
+    // if(nextPage === true){
+    //     increment();
+    //     params.page = `${count}`;
+    //     nextPage = false;
+    // }
+    
     // Calling External API to get product data
     let getSuggestions = async (value) => {
-        updateLoading();
+        //isLoading();
+        params.search_term = `${data}`;
+        if(filterData.sort_by != '' ){
+            params = { ...params, sort_by: filterData.sort_by[0] }
+        }else if(filterData.customer_location != ''){
+            params = { ...params, customer_location: filterData.customer_location[0] }
+        }
         const inputValue = value.trim().toLowerCase();
         try{
-            let response = axios.get('https://api.rainforestapi.com/request', { ...params, search_term: `${inputValue}`, })
-            let data = await JSON.stringify(response.search_results);
-            updateLoading();
-            setResultsData(data);
+            console.log(params);
+            //console.log("calling API");
+            let response = await axios.get('https://api.rainforestapi.com/request', { params })
+            
+            let data = response.data.search_results;
+            //console.log(data);
+            //isLoading();
+            //console.log('not loading');
+            searchData(data);
         }catch(error){
-            updateLoading();
-            setErrorMsg(error.message);
+            //isLoading();
+            error(error.message);
         }
     };
 
-        // Adding AutoSuggest component
-        if(loading === true){
-            return (<h1>Loading...</h1>) 
-        }else if(error != ''){
-            
-            return (
-            <>
-            
-            <div class="alert alert-danger">
-                <strong>{error.message}</strong> 
-            </div>
-            <Form onSubmit={(evt)=>{evt.preventDefault(); getSuggestions(data);}}>
-            <Label htmlFor="header-search"> 
-            <span className="visually-hidden">Search products</span>
-            </Label>
-            <Input
-            type="text"
-            id="header-search"
-            placeholder="Search products"
-            name="search"
-            value= {data}
-            onChange={e => setData(e.target.value)} 
-            />
-            <Button type="submit">Search</Button>
-            </Form>
-            </>)
-        }
-        else{
-                return (<Form onSubmit={(evt)=>{evt.preventDefault(); getSuggestions(data);}}>
+  
+        return (<Form className="search-form" onSubmit={(evt)=>{evt.preventDefault(); getSuggestions(data);}}>
                 <Label htmlFor="header-search"> 
                 <span className="visually-hidden">Search products</span>
                 </Label>
@@ -85,7 +79,6 @@ function SearchBar ({ searchData }) {
                 />
                 <Button type="submit">Search</Button>
                 </Form>)
-        }
 }
 
 export default SearchBar;
