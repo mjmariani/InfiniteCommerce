@@ -122,7 +122,7 @@ static async findAll() {
 
 /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, email, is_admin, shopping_cart_id }
+   * Returns { user_id, username, first_name, last_name, email, is_admin, shopping_cart_id }
    *
    * Throws NotFoundError if user not found.
    **/
@@ -322,10 +322,10 @@ return setNewShoppingCart.rows[0].shopping_cart_id;
 
 /** Add an item to current shopping cart for User
  * 
- * @params shopping_cart_id, item_id, store_name
- * @returns itemId
+ * @params shopping_cart_id, asin, store_name
+ * @returns itemId, asin
  */
-static async addItem(shopping_cart_id, itemId, store_name){
+static async addItem(shopping_cart_id, store_name, asin){
 
     //getting user's current opened shopping cart id
     //const userShoppingCart = user.shopping_cart_id;
@@ -341,10 +341,10 @@ static async addItem(shopping_cart_id, itemId, store_name){
 
     const addItem = await db.query( 
         `INSERT INTO item
-        (item_id, shopping_cart, store_name)
+        (shopping_cart, store_name, asin)
         VALUES ($1, $2, $3)
-        RETURNING item_id`,
-        [itemId, shopping_cart_id, store_name]
+        RETURNING item_id, asin`,
+        [shopping_cart_id, store_name, asin]
     );
 
     return addItem.rows[0];
@@ -353,9 +353,9 @@ static async addItem(shopping_cart_id, itemId, store_name){
 /** Update quantity of an item to current shopping cart for User
  * 
  * @params shopping_cart_id, item_id, store_name, quantity
- * @returns itemId, quantity
+ * @returns itemId, quantity, asin
  */
- static async updateQuantityOfItem(shopping_cart_id, itemId, store_name, quantity){
+ static async updateQuantityOfItem(shopping_cart_id, asin, store_name, quantity){
 
     const shoppingCartId = await db.query(
         `SELECT shopping_cart_id
@@ -369,9 +369,9 @@ static async addItem(shopping_cart_id, itemId, store_name){
     const addItem = await db.query( 
         `UPDATE item
         SET quantity = $1
-        WHERE (shopping_cart_id = $2 AND item_id = $3 AND store_name = $4)
-        RETURNING item_id, quantity`,
-        [quantity, shopping_cart_id, itemId, store_name]
+        WHERE (shopping_cart_id = $2 AND asin = $3 AND store_name = $4)
+        RETURNING item_id, quantity, asin`,
+        [quantity, shopping_cart_id, asin, store_name]
     );
 
     return addItem.rows[0];
@@ -382,7 +382,7 @@ static async addItem(shopping_cart_id, itemId, store_name){
  * 
  * @returns "successful" if successful, otherwise "not successful"
  */
- static async deleteItem(shopping_cart_id, itemId, store_name){
+ static async deleteItem(shopping_cart_id, asin, store_name){
 
     try{
     //getting user's current opened shopping cart id
@@ -390,8 +390,8 @@ static async addItem(shopping_cart_id, itemId, store_name){
 
     const deleteItem = await db.query( 
         `DELETE FROM item
-        WHERE (shopping_cart = $1 AND store_name = $2 AND item_id = $3)`,
-        [shopping_cart_id, store_name, itemId]
+        WHERE (shopping_cart = $1 AND store_name = $2 AND asin = $3)`,
+        [shopping_cart_id, store_name, asin]
     );
     
     if(!deleteItem) return "not successful"
@@ -404,14 +404,14 @@ static async addItem(shopping_cart_id, itemId, store_name){
 
 /**Get User's Shopping Cart with list of items within
  * @params user_id, shopping_cart_id
- * @returns [{item_id, shopping_cart_id, store_name},...]
+ * @returns [{item_id, shopping_cart_id, store_name, asin, quantity},...]
 */
 
 static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
     //const user_id = user.user_id;
 
     const allItems = await db.query(
-        `SELECT item.item_id, item.store_name, item.shopping_cart_id
+        `SELECT item.item_id, item.store_name, item.shopping_cart_id, item.asin, item,quantity
         FROM item
         INNER JOIN shopping_cart ON item.shopping_cart_id = shopping_cart.shopping_cart_id
         WHERE (item.shopping_cart_id = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,

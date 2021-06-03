@@ -17,7 +17,8 @@ CREATE TABLE shopping_cart (
 );
 
 CREATE TABLE item (
-  item_id INTEGER PRIMARY KEY,
+  item_id SERIAL PRIMARY KEY,
+  asin TEXT,
   quantity INTEGER DEFAULT 1,
   store_name TEXT,
   shopping_cart_id INTEGER NOT NULL

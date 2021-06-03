@@ -133,7 +133,7 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * Get all items in shopping cart for a user
  * 
  * @params: username, user_id
- * @returns: { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id }, ... ]} 
+ * @returns: { shopping_cart_id, items: [ {item_id, shopping_cart_id, store_name, asin, quantity }, ... ]} 
  * 
  * Authorization required by either the admin or same as user as: username
  */
@@ -149,19 +149,19 @@ router.get("/:username/:user_id/shoppingcart", ensureCorrectUserOrAdmin, async f
 
 });
 
-/** POST /[username]/[user_id]/shoppingcart/[store_name]/[item_id] => { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id }, ... ]}
+/** POST /[username]/[user_id]/shoppingcart/[store_name]/[asin] => { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id, asin, quantity }, ... ]}
  * 
  * Add an item to a user's shopping cart
- * @params: username, user_id
+ * @params: username, user_id, store_name, asin
  * @returns: { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id }, ... ]} 
  * 
  * Authorization required by either the admin or same as user as: username
  */
 
-router.post("/:username/:user_id/shoppingcart/:store_name/:item_id", ensureCorrectUserOrAdmin, async function (req, res, next){
+router.post("/:username/:user_id/shoppingcart/:store_name/:asin", ensureCorrectUserOrAdmin, async function (req, res, next){
     try{
         const shopping_cart_id = await User.findShoppingCartByUserId(req.params.user_id);
-        const item = await User.addItem(shopping_cart_id, req.params.item_id, req.params.store_name);
+        const item = await User.addItem(shopping_cart_id, req.params.store_name, req.params.asin );
         const items = await User.getAllItemsForCurrentCart(req.params.user_id,shopping_cart_id);
         return res.json({ shopping_cart_id, items });
 
@@ -170,19 +170,38 @@ router.post("/:username/:user_id/shoppingcart/:store_name/:item_id", ensureCorre
     }
 });
 
-/** DELETE /[username]/[user_id]/shoppingcart/[store_name]/[item_id] => { shopping_cart_id, items: [ {item_id, store_name }, ... ]}
+/** POST /[username]/[user_id]/shoppingcart/[store_name]/[asin]/[quantity] => { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id, asin, quantity }, ... ]}
+ * 
+ * Update quantity of an item to a user's shopping cart
+ * @params: username, user_id, store_name, asin, quantity
+ * @returns: { itemId, quantity, asin } 
+ * 
+ * Authorization required by either the admin or same as user as: username
+ */
+ router.post("/:username/:user_id/shoppingcart/:store_name/:asin/:quantity", ensureCorrectUserOrAdmin, async function (req, res, next){
+    try{
+        const shopping_cart_id = await User.findShoppingCartByUserId(req.params.user_id);
+        const addItem = await User.updateQuantityOfItem(shopping_cart_id, req.params.asin, req.params.store_name, req.params.quantity);
+        return res.json({addItem});
+    }catch(err){
+        return next(err);
+    }
+
+ });
+
+/** DELETE /[username]/[user_id]/shoppingcart/[store_name]/[asin] => "successful" if successful, otherwise "not successful"
  * 
  * Delete an item to a user's shopping cart
  * @params: username, user_id
- * @returns: { shopping_cart_id, items: [ {item_id, store_name }, ... ]} 
+ * @returns: "successful" if successful, otherwise "not successful" 
  * 
  * Authorization required by either the admin or same as user as: username
  */
 
-router.delete("/:username/:user_id/shoppingcart/:store_name/:item_id", ensureCorrectUserOrAdmin, async function (req, res, next){
+router.delete("/:username/:user_id/shoppingcart/:store_name/:asin", ensureCorrectUserOrAdmin, async function (req, res, next){
     try{
         const shopping_cart_id = await User.findShoppingCartByUserId(req.params.user_id);
-        const delete_item = await User.deleteItem(shopping_cart_id, req.params.item_id, req.params.store_name);
+        const delete_item = await User.deleteItem(shopping_cart_id, req.params.asin, req.params.store_name);
         return res.json({ delete_item });
     }catch(err){
         next(err);

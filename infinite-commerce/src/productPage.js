@@ -9,7 +9,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 //implement infinite scroll
 
 
-function ProductPage(){
+function ProductPage({ handleAdd, setItemIDDescription, renderDescriptionPage }){
 
     let [data, setData] = useState('');
     // let [loading, setLoading] = useState(false);
@@ -19,46 +19,6 @@ function ProductPage(){
         'customer_location': '',
     });
 
-    
-
-    //console.log(loading)
-
-    // const isLoading = useCallback(() => {
-    //     setLoading(!loading);
-    // }, data)
-
-    // const isLoading = () => setLoading(!loading);
-
-
-    // if(loading){
-    //     //console.log("loading")
-    //     return (<h1>Loading...</h1>) 
-    // }else if(error){
-    //     <>
-    //         <div class="alert alert-danger">
-    //             <strong>{error.message}</strong> 
-    //         </div>
-    //         <div className="search-bar">
-    //         <SearchBar searchData={
-    //             (data) => setData(data)
-    //         } isLoading = {isLoading} error={(msg)=>setError(msg)}/>
-    //         </div>
-    //     </>}else{
-    //             //console.log("not loading")
-    //         return ( 
-    //             <>
-    //                 <div className="search-bar">
-    //                     <SearchBar searchData={
-    //                         (data) => setData(data)
-    //                     } isLoading = {isLoading} error={(msg)=>setError(msg)}/>
-    //                 </div>
-    //                 {(data) ? data.map(result => {
-    //                     console.log(result);
-    //                     return <FilterCard suggestion={ result } />
-    //                 }): <p></p>}
-    //             </>
-    //         )
-    //             }
 
 
     return ( 
@@ -70,7 +30,7 @@ function ProductPage(){
                         </div>
                         <div className="row">
                         <div class="col-2">
-                            <Filter filterData={(filter, value) => setFilterData(filterData => ({ ...filterData, [filter]: [value]}))}/>
+                            <Filter filterData={(filter, value) => setFilterData(filterData => ({ ...filterData, [filter]: [value]}))} handleAdd = { handleAdd }/>
                         </div>
                         <div className="col">
                             <div className="row">
@@ -109,7 +69,7 @@ function ProductPage(){
                             console.log(result);
                                     return ( 
                                         
-                                    <FilterCard suggestion={ result } key={index} />
+                                    <FilterCard suggestion={ result } key={index} setItemIDDescription={setItemIDDescription} handleAdd={handleAdd} renderDescriptionPage={renderDescriptionPage} />
                                     
                                     )
                             

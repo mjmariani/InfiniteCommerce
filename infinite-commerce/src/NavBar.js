@@ -15,7 +15,10 @@ import { Drawer, Button, List, Divider, ListItem, ListItemIcon, ListItemText } f
 
 //Source: https://material-ui.com/components/drawers/#temporary-drawer
 
-function NavBar(){
+//Implement adding to quantity
+//Implement deleting an item from cart
+
+function NavBar({ getAllItemsInCart, checkout, updateQuantity, deleteItem, cart, user }){
     const useStyles = makeStyles({
         list: {
           width: 250,
@@ -50,26 +53,33 @@ const [check, setCheck] = useState(false);
       onKeyDown={toggleDrawer(anchor, false)}
     ><ShoppingBasketIcon />
       <List>
-        //implement shopping cart by looping through shoppingproduct card and making calls to db to get items
+        
+        {!cart ? cart.map((item) => { 
+            <ShoppingCartProductCard item={item} />
+        }): <h3>No Items in your Cart</h3>}
         
       </List>
+      <Button onClick={() => {checkout()}} >Checkout</Button>
     </div>
   );
-
     
     return(
         <div>
             <Navbar bg="dark" variant="dark">
                 <Container>
                 <Navbar.Brand as={Link} to="/" className="navLogo">InfiniteCommerce</Navbar.Brand>
+                {user ? 
                 <Nav className="ml-12 nav">
-                <Nav.Link as={Link} to="/info">Info</Nav.Link>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/signup">Sign Up</Nav.Link>
-                <Nav.Link as={Link} to="/products">Products</Nav.Link>
-                <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
-                <Nav.Link onClick={toggleDrawer('right', true)}><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" /></Nav.Link>
+                  <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                  <Nav.Link as={Link} to="/signup">Sign Up</Nav.Link>
                 </Nav>
+                : <Nav className="ml-12 nav">
+                    <Nav.Link as={Link} to="/info">Info</Nav.Link>
+                    <Nav.Link as={Link} to="/products">Products</Nav.Link>
+                  <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
+                  <Nav.Link onClick={toggleDrawer('right', true)}><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" /></Nav.Link>
+                  </Nav>
+                }
                 </Container>
             </Navbar>
             <br />
