@@ -51,7 +51,7 @@ class CommerceAPI {
     //Returns { token }
 
     static async register(data) {
-        console.log(data)
+        //console.log(data)
         let res = await this.request(`auth/register`, data, "post");
         return res.token;
     }

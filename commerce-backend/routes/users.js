@@ -100,11 +100,11 @@ router.get("/:username", ensureCorrectUserOrAdmin, async function (req, res, nex
 router.patch("/:username", ensureCorrectUserOrAdmin, async function (req, res, next){
     try{
         //validate json request sent
-        const validator = jsonschema.validate(req.body, editUserSchema);
-        if(!validator.isValid){
-            const errs = validator.errors.map(e => e.stack);
-            throw new BadRequestError(errs);
-        }
+        // const validator = jsonschema.validate(req.body, editUserSchema);
+        // if(!validator.isValid){
+        //     const errs = validator.errors.map(e => e.stack);
+        //     throw new BadRequestError(errs);
+        // }
 
         const user = await User.update(req.params.username, req.body);
         return res.json({ user });

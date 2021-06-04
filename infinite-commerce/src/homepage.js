@@ -232,14 +232,14 @@ function Home(){
                     <Route exact path="/info" >
                         <MoreInfo />
                     </Route>
-                    <Route exact path="/signup" register={register}>
-                        <SignUp />
+                    <Route exact path="/signup" >
+                        <SignUp register={register} />
                     </Route>
-                    <Route exact path="/login" login = {login}>
-                        <LogIn />
+                    <Route exact path="/login" >
+                        <LogIn login = {login} />
                     </Route>
-                    <Route exact path="/profile" edit = {edit}>
-                        <EditProfile />
+                    <Route exact path="/profile" >
+                        <EditProfile edit = {edit} />
                     </Route>
                     <Route exact path="/products" >
                         <ProductPage handleAdd = { handleAdd } setItemIDDescription = {setDescription} renderDescriptionPage = {(asin) => {renderDescriptionPage(asin)}}/>
