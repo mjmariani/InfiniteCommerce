@@ -58,7 +58,7 @@ router.post("/", ensureAdmin, async function (req, res, next){
 
 router.get("/", ensureAdmin, async function (req, res, next){
     try{
-        //user user model API to retrieve all users from database
+        //use user model API to retrieve all users from database
         const users = await User.findAll();
         return res.json( { users });
     }catch(err){

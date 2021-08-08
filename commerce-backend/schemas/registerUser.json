@@ -9,17 +9,17 @@
         {
             "username": "chrome2x",
             "password": "pass",
-            "firstName": "Kevin",
-            "lastName": "Markson",
+            "first_name": "Kevin",
+            "last_name": "Markson",
             "email": "markson@gmail.com",
-            "isAdmin": "False"
+            "is_admin": "False"
         }
     ],
     "required": [
         "username",
         "password",
-        "firstName",
-        "lastName",
+        "first_name",
+        "last_name",
         "email"
     ],
     "properties": {
@@ -43,8 +43,8 @@
                 "pass"
             ]
         },
-        "firstName": {
-            "$id": "#/properties/firstName",
+        "first_name": {
+            "$id": "#/properties/first_name",
             "type": "string",
             "title": "The firstName schema",
             "description": "An explanation about the purpose of this instance.",
@@ -53,8 +53,8 @@
                 "Kevin"
             ]
         },
-        "lastName": {
-            "$id": "#/properties/lastName",
+        "last_name": {
+            "$id": "#/properties/last_name",
             "type": "string",
             "title": "The lastName schema",
             "description": "An explanation about the purpose of this instance.",
@@ -75,7 +75,7 @@
             "format": "email"
         },
         "isAdmin": {
-            "$id": "#/properties/isAdmin",
+            "$id": "#/properties/is_admin",
             "default": "",
             "description": "boolean value of isAdmin; not required",
             "examples": [

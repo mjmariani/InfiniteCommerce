@@ -7,15 +7,15 @@
     "default": {},
     "examples": [
         {
-            "firstName": "Kevin",
-            "lastName": "Markson",
+            "first_name": "Kevin",
+            "last_name": "Markson",
             "password": "pass",
             "email": "markson@gmail.com"
         }
     ],
     "properties": {
-        "firstName": {
-            "$id": "#/properties/firstName",
+        "first_name": {
+            "$id": "#/properties/first_name",
             "type": "string",
             "title": "The firstName schema",
             "description": "An explanation about the purpose of this instance.",
@@ -24,8 +24,8 @@
                 "Kevin"
             ]
         },
-        "lastName": {
-            "$id": "#/properties/lastName",
+        "last_name": {
+            "$id": "#/properties/last_name",
             "type": "string",
             "title": "The lastName schema",
             "description": "An explanation about the purpose of this instance.",

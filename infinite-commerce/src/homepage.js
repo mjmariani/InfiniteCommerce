@@ -10,7 +10,7 @@ import Description from "./description";
 import { Route, Switch, Redirect, Link, BrowserRouter, useParams } from "react-router-dom";
 import React, {useState, useEffect} from 'react';
 import CommerceAPI from "./api";
-import useLocalStorage from "./localStorage";
+//import useLocalStorage from "./localStorage";
 import axios from 'axios';
 
 function Home(){
@@ -18,7 +18,7 @@ function Home(){
 
     //using custom hook to use local Storage in order to store token
     //local storage uses key, value pairs to store objects
-    const [token, setToken] = useLocalStorage('token', '');
+    const [token, setToken] = useState('token', '');
     const [user, setUser] = useState({});
     const [shopCart, setShopCart] = useState([]);
     //to store item asin in filterCard to pass down to Description page
@@ -47,6 +47,8 @@ function Home(){
         try{
             let res = await CommerceAPI.login(data);
             saveToken(res);
+            //if no error, save username in locals
+
             let user = await CommerceAPI.getUserInfo(data.username);
             saveUser(user);
             return user;
@@ -60,10 +62,12 @@ function Home(){
 
     const register = async (data) => {
         try{
-            let res = await CommerceAPI.register(data);
-            saveToken(res);
-            let user = await CommerceAPI.getUserInfo(data.username);
-            saveUser(user);
+            let token = await CommerceAPI.register(JSON.stringify(data));
+            saveToken(JSON.parse(token));
+            //if no error, save username in locals
+            //saveUser(data.username);
+            let user = await CommerceAPI.getUserInfo(JSON.stringify(data.username));
+            saveUser(JSON.parse(user));
             return user;
 
         }catch(err){

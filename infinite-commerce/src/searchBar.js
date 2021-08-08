@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
 import "./searchBar.css";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+
 //Source for autocomplete code: https://www.freakyjolly.com/autocomplete-suggestion-control-using-react-autosuggest/
 import Autosuggest from 'react-autosuggest';
 import axios from 'axios';

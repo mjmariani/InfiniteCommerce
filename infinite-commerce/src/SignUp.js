@@ -1,6 +1,7 @@
+import "./SignUp.css";
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
-import "./SignUp.css";
+
 import { Redirect } from "react-router-dom";
 import React, {useState} from 'react';
 

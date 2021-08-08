@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
 import "./filter.css";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+
 import { FormControl } from '@material-ui/core';
 import { FormControlLabel } from '@material-ui/core';
 import { FormLabel } from '@material-ui/core';

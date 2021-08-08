@@ -1,5 +1,6 @@
-import React, { useContext } from "react";
 import "./NavBar.css";
+import React, { useContext } from "react";
+
 import { NavLink, Link } from "react-router-dom";
 //import { Navbar, Nav, NavItem, Container } from "reactstrap";
 import userContext from "./userContext"

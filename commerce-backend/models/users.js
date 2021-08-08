@@ -58,11 +58,12 @@ static async authenticate(username, password){
 static async register( 
     {username, password, firstName, lastName, email, isAdmin}
 ){
-    const checkDuplicateUsers = await db.query( 
+    const checkDuplicateUsers = await db.query(
         `SELECT username
-        FROM users
-        WHERE username = $1`, [username],
-    );
+         FROM users
+         WHERE username = $1`,
+      [username],
+  );
 
     //throw bad request error with message that there are duplicate usernames
     if(checkDuplicateUsers.rows[0]){
@@ -76,31 +77,26 @@ static async register(
         `INSERT INTO users
         (username, password, first_name, last_name, email, is_admin)
         VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING user_id, username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
-        [
-            username, hashedPassword, firstName, lastName, email, isAdmin,
-        ],
+        RETURNING user_id, username, first_name, last_name, email, is_admin`,
+        [username, hashedPassword, firstName, lastName, email, isAdmin],
     );
 
+    //find a way to refresh or flush data in db
+    
+
     const user = userResult.rows[0];
+    //console.log(user);
 
     const userShoppingCartResult = await db.query( 
         `INSERT INTO shopping_cart
         (user_id)
         VALUES ($1)
         RETURNING shopping_cart_id`,
-        [user.user_id],
+        [user.user_id]
     );
 
     //add shopping cart id into users object
-    user['shopping_cart_id'] = userShoppingCartResult.rows[0];
-
-    // const shoppingCartCache = await db.query( 
-    //     `UPDATE users
-    //     SET shopping_card_id = ${user.shopping_cart_id}
-    //     WHERE username = ${user.username}
-    //     RETURNING username, shopping_cart_id`
-    // );
+    user['shopping_cart_id'] = userShoppingCartResult.rows[0].shopping_cart_id;
     
     return user;
 
@@ -164,8 +160,8 @@ static async update(username, data){
 
     const {setCols, values} = sqlForPartialUpdate( 
         data, 
-        {firstName: "first_name",
-        lastName: "last_name",
+        {first_name: "first_name",
+        last_name: "last_name",
         password: "password",
         email: "email"},
     );
@@ -177,10 +173,10 @@ static async update(username, data){
                     SET ${setCols}
                     WHERE username = ${usernameVarIdx}
                     RETURNING username,
-                                first_name AS "firstName",
-                                last_name AS "lastName",
+                                first_name,
+                                last_name,
                                 email,
-                                is_admin AS "isAdmin"`;
+                                is_admin`;
     
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];

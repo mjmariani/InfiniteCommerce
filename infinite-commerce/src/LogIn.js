@@ -1,7 +1,8 @@
+import "./LogIn.css";
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import { Redirect } from "react-router-dom";
-import "./LogIn.css";
+
 import React, {useState} from 'react';
 
 function Login({login}){

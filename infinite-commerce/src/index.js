@@ -4,10 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Favicon from 'react-favicon'
+import "bootstrap/dist/css/bootstrap.min.css";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Favicon url='http://oflisback.github.io/react-favicon/img/github.ico' />
+    {/* <Favicon url='http://oflisback.github.io/react-favicon/img/github.ico' /> */}
     <App />
   </React.StrictMode>,
   document.getElementById('root')

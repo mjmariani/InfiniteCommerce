@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 //source: https://typeofnan.dev/using-local-storage-in-react-with-your-own-custom-uselocalstorage-hook/
 
 const useLocalStorage = (key, defaultValue) => {
-  const stored = localStorage.getItem(key);
-  const initial = stored ? JSON.parse(stored) : defaultValue;
-  const [value, setValue] = useState(initial);
+  
+    const stored = localStorage.getItem(key);
+    const initial = stored ? JSON.parse(stored) : defaultValue;
+    const [value, setValue] = useState(initial);
 
   useEffect(() => {
       try{

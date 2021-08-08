@@ -9,7 +9,7 @@ function Description ({item, handleAdd}){
 
     
 
-      return ( 
+    return ( 
         <>
             <div className="item">
                 <div className="col-sm-8">
@@ -35,7 +35,7 @@ function Description ({item, handleAdd}){
 
         </>
     )
-  
+
     
 
     

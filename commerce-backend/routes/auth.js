@@ -24,13 +24,13 @@ const { BadRequestError } = require("../expressError");
 router.post("/token", async function (req, res, next){
     try{
         //validate the json sent through the req.body.data per the userAuthSchema
-        // const validator = jsonschema.validate(req.body, userAuthSchema);
-        // if(!validator.isValid){
-        //     //if not valid, then get errors obj and create a new array mapping each error.stack to the new array
-        //     const errs = validator.errors.map(e => e.stack);
-        //     //pass the errs array into the BadRequestError constructor and throw the error
-        //     throw new BadRequestError(errs);
-        // } 
+        const validator = jsonschema.validate(req.body, userAuthSchema);
+        if(!validator.isValid){
+            //if not valid, then get errors obj and create a new array mapping each error.stack to the new array
+            const errs = validator.errors.map(e => e.stack);
+            //pass the errs array into the BadRequestError constructor and throw the error
+            throw new BadRequestError(errs);
+        } 
 
         //if json sent is valid, authenticate the username and password by passing them into the User.authenticate static method
         //console.log(req.body)
@@ -50,7 +50,7 @@ router.post("/token", async function (req, res, next){
 
 /** POST /auth/register: {user} => {token}
  * 
- * user must include { username, password, firstName, lastName, email }   
+ * user must include { username, password, first_name, last_name, email }   
  * 
  * returns JWT token which can be used to authenticate further requests.
  * 
@@ -60,13 +60,13 @@ router.post("/token", async function (req, res, next){
 router.post("/register", async function (req, res, next){
     try{
         //validate the json req sent for registering a user
-        // const validator = jsonschema.validate(req.body, registerUserSchema);
-        // if(!validator.isValid){
-        //     //if not valid, throw error
-        //     const errs = validator.errors.map(e => e.stack);
-        //     //console.log(req.body);
-        //     throw new BadRequestError(errs);
-        // }
+        const validator = jsonschema.validate(req.body, registerUserSchema);
+        if(!validator.isValid){
+            //if not valid, throw error
+            const errs = validator.errors.map(e => e.stack);
+            console.log(errs);
+            throw new BadRequestError(errs);
+        }
 
         //if json is valid, register new user and pass in the isAdmin attribute as false
         const newUser = await User.register({...req.body, isAdmin: false});
