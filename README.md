@@ -63,13 +63,12 @@ Supertest
 
 Future Implementations:</br>
 1. Include a recommendation system for users based on the items searched</br>
-2. Possibly use Redux and thunk middleware</br>
-3. Implement infinite scroll rendering</br>
-4. Include more filtering abilities and more stores to search items</br>  
+2. Implement infinite scroll rendering</br>
+3. Include more filtering abilities and more stores to search items</br>  
 
 **Steps on how to use:**<br/>
 1. Click Sign Up and create an account.<br/>
-2. Then click Products, once logged in and go ahead and searching for products. You can filter items based on certain preferences on the left filter section.<br/>
+2. Then click Products, once logged in and go ahead and search for products. You can filter items based on certain preferences on the left filter section.<br/>
 3. Add any item to the shopping cart.<br/>
 4. Then you can checkout the products once you've selected all your products/items.<br/>
 
