@@ -1,12 +1,22 @@
 import "./LogIn.css";
+import AlertDismissible from "./AlertDismissible";
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import { Redirect } from "react-router-dom";
-
+import CommerceAPI from "./api";
 import React, {useState} from 'react';
+import {useDispatch} from "react-redux";
+import { loginState } from "./features/userSlice";
 
-function Login({login}){
+function Login(){
+
     let [data, setData]=useState({});
+
+    let [errorFlag, setErrorFlag] = useState(false);
+
+    const changeErrorFlag = () => {
+        setErrorFlag(errorFlag => !errorFlag);
+    }
     
     const handleChange = evt => {
         const { name, value } = evt.target;
@@ -16,22 +26,86 @@ function Login({login}){
         }));
     }
 
-    const handleSubmit = async (data) => {
+    
+
+    //login
+    const login = async (data) => {
         try{
-            await login(data);
-            return <Redirect to="/" />
-        }catch(err){
+            //debugger;
+            let token = await CommerceAPI.login(data);
             
-            return <p>{err.message}</p>
+            //save token info in redux state
+            dispatch(
+                loginState({
+                    username: data.username,
+                    password: data.password,
+                    token: token.token,
+                    loggedIn: true,
+                })
+            )
+
+            let user = await CommerceAPI.getUserInfo(data.username, token.token);
+            return [token, user];
+
+        }catch(err){
+            changeErrorFlag();
+            return <></>;
         }
     }
 
+    //to use the redux dispatch method
+    const dispatch = useDispatch();
+    
+    const handleSubmit = async (evt) => {
+        evt.preventDefault();
+        try{
+            
+            const userInfo = await login(data);
+            
+            dispatch(
+                loginState({
+                username: userInfo[1].user.username,
+                user_id: userInfo[1].user.user_id,
+                first_name: userInfo[1].user.firstname,
+                last_name: userInfo[1].user.lastname,
+                is_admin: userInfo[1].user.isadmin, 
+                shopping_cart_id: userInfo[1].user.shopping_cart_id,
+                email: userInfo[1].user.email,
+                token: userInfo[0].token,
+                loggedIn: true,
+            })
+            );
 
-    return( 
+            const user_data = {
+                username: userInfo[1].user.username,
+                user_id: userInfo[1].user.user_id,
+                first_name: userInfo[1].user.firstname,
+                last_name: userInfo[1].user.lastname,
+                is_admin: userInfo[1].user.isadmin, 
+                shopping_cart_id: userInfo[1].user.shopping_cart_id,
+                email: userInfo[1].user.email,
+                token: userInfo[0].token,
+                loggedIn: true,
+            }
+
+            //put user info into local storage
+            localStorage.setItem('user_data', JSON.stringify(user_data));
+
+            return <Redirect to="/products" />
+
+        }catch(err){
+            
+            return <></>
+        }
+    }
+
+    return(
+        <>
+        { errorFlag === true && <AlertDismissible msg={"Log In Error"}/>}
         <div class="login-form">
             <h2>Login</h2>
             <p></p>
-            <Form onSubmit={(evt)=> {evt.preventDefault(); handleSubmit(data)}}>
+            <Form onSubmit={(evt)=>{handleSubmit(evt)}}>
                 <Form.Group className="mb-3" controlId="formBasicText">
                     <Form.Label>Username</Form.Label>
                     <Form.Control type="text" name= "username" value={data.username} placeholder="Username" onChange={handleChange} />
@@ -44,11 +118,11 @@ function Login({login}){
                     </Form.Text>
                 </Form.Group>
                 
-                <Button variant="primary" type="submit" id="button">
-                    Submit
+                <Button variant="primary" id="button" type="submit">
+                    Login
                 </Button>
             </Form>
-        </div>
+        </div></>
     )
 }
 

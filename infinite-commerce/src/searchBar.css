@@ -1,15 +1,15 @@
 .search-form{
-  padding-left: 30%;
-  padding-right: 30%;
-}
-
-.btn-secondary{
-  padding-left: 30%;
-  left: 30%;
-  margin-top: 2%;
-  margin-bottom: 1%;
-  padding-top: 1%;
-  padding-bottom: 2%;
-  margin-left: 45%;
+    padding-left: 30%;
+    padding-right: 30%;
+  }
   
-}
+  .btn-secondary{
+    padding-left: 30%;
+    left: 30%;
+    margin-top: 2%;
+    margin-bottom: 1%;
+    padding-top: 1%;
+    padding-bottom: 2%;
+    margin-left: 45%;
+    
+  }

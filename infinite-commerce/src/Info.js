@@ -1,11 +1,10 @@
-import './info.css';
+import './Info.css';
 import { Button } from 'react-bootstrap'
 import {Link, useParams } from "react-router-dom";
 // import {Helmet} from 'react-helmet';
 
-
 function Info(){
-    
+
     return( 
         <div class="info">
             {/* <Helmet>
@@ -17,7 +16,7 @@ function Info(){
             <Button variant="outline-primary">More Info!</Button>
             </Link>
         </div>
-    )
+    )    
 }
 
 export default Info;

@@ -1,12 +1,18 @@
 import "./SignUp.css";
+import AlertDismissible from "./AlertDismissible";
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
-
+import CommerceAPI from "./api";
 import { Redirect } from "react-router-dom";
 import React, {useState} from 'react';
+import {useDispatch} from "react-redux";
+import { loginState } from "./features/userSlice";
 
-function SignUp({register}){
+function SignUp(){
+
     let [data, setData]=useState({});
+
+    let [errorFlag, setErrorFlag] = useState(false);
 
     const handleChange = evt => {
         const { name, value } = evt.target;
@@ -16,17 +22,83 @@ function SignUp({register}){
         }));
     }
 
+    const changeErrorFlag = () => {
+        setErrorFlag(errorFlag => !errorFlag);
+    }
+
+    //to use the redux dispatch method
+    const dispatch = useDispatch();
+
     const handleSubmit = async (data) => {
         try{
-            await register(data)
-            return <Redirect to="/" />
+            const userInfo = await register(data)
+
+            dispatch(
+                loginState({
+                    username: userInfo[1].user.username,
+                    user_id: userInfo[1].user.user_id,
+                    first_name: userInfo[1].user.firstname,
+                    last_name: userInfo[1].user.lastname,
+                    is_admin: userInfo[1].user.isadmin, 
+                    shopping_cart_id: userInfo[1].user.shopping_cart_id,
+                    email: userInfo[1].user.email,
+                    token: userInfo[0].token,
+                    loggedIn: true,
+            })
+            );
+            debugger;
+
+            const user_data = {
+                username: userInfo[1].user.username,
+                user_id: userInfo[1].user.user_id,
+                first_name: userInfo[1].user.firstname,
+                last_name: userInfo[1].user.lastname,
+                is_admin: userInfo[1].user.isadmin, 
+                shopping_cart_id: userInfo[1].user.shopping_cart_id,
+                email: userInfo[1].user.email,
+                token: userInfo[0].token,
+                loggedIn: true,
+            }
+
+            //put user info into local storage
+            localStorage.setItem('user_data', JSON.stringify(user_data));
+
+            return <Redirect to="/products" />
         }catch(err){
             return <p>{err.message}</p>
         }
     }
 
+    const register = async (data) => {
+        try{
+            //debugger;
+            let token = await CommerceAPI.register(data);
 
-    return( 
+            //save token info in redux state
+            dispatch(
+                loginState({
+                    username: data.username,
+                    password: data.password,
+                    token: token.token,
+                    loggedIn: true,
+                })
+            )
+
+            CommerceAPI.token = token.token;
+
+            let user = await CommerceAPI.getUserInfo(data.username, token.token);
+
+            return [token, user];
+
+        }catch(err){
+            changeErrorFlag();
+            return <p>{err.message}</p>
+        }
+    }
+
+    return(
+        <>
+        { errorFlag === true && <AlertDismissible msg={"Sign Up Error"}/>}
         <div className="sign-up-form">
             <h2>Sign Up!</h2>
             <p></p>
@@ -37,11 +109,11 @@ function SignUp({register}){
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicText">
                     <Form.Label>First Name</Form.Label>
-                    <Form.Control type="text" name = "first_name" value={data.first_name} placeholder="First Name" onChange={handleChange} />
+                    <Form.Control type="text" name = "firstName" value={data.first_name} placeholder="First Name" onChange={handleChange} />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicText">
                     <Form.Label>Last Name</Form.Label>
-                    <Form.Control type="text" name = "last_name" value={data.last_name} placeholder="Last Name" onChange={handleChange}/>
+                    <Form.Control type="text" name = "lastName" value={data.last_name} placeholder="Last Name" onChange={handleChange}/>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email address</Form.Label>
@@ -60,10 +132,11 @@ function SignUp({register}){
                 </Form.Group>
                 
                 <Button variant="primary" type="submit" id="button">
-                    Submit
+                    Sign Up
                 </Button>
             </Form>
         </div>
+        </>
     )
 }
 

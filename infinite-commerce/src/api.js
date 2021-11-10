@@ -10,18 +10,18 @@ const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
 
 class CommerceAPI {
 
-    //token for interacting with the API
-    static token;
-
     //Source: Springboard (Jobly Project)
     //leveraged as a helper method to make requests to node.js backend server
-    static async request(endpoint, data = {}, method = "get") {
+
+    //static token;
+    static async request(endpoint, token = "", data = {}, method = "get") {
+
         console.debug("API Call:", endpoint, data, method);
     
         //there are multiple ways to pass an authorization token, this is how you pass it in the header.
         //this has been provided to show you another way to pass the token. you are only expected to read this code for this project.
         const url = `${BASE_URL}/${endpoint}`;
-        const headers = { Authorization: `Bearer ${CommerceAPI.token}` };
+        const headers = { Authorization: `Bearer ${token}` };
         const params = (method === "get")
             ? data
             : {};
@@ -34,94 +34,100 @@ class CommerceAPI {
         throw Array.isArray(message) ? message : [message];
         }
     }
-
+    
     // Individual API routes
 
     /** Login */
 
+    // Params { data }
     //Returns { token }
 
-    static async login(data) {
-        let res = await this.request(`auth/token`, data, "post");
-        return res.token;
+    static async login(data, token) {
+        let res = await this.request(`auth/token`, token, data, "post");
+        return res;
     }
-
+    
     /** Register */
 
+    // Params { data }
     //Returns { token }
 
-    static async register(data) {
+    static async register(data, token) {
         //console.log(data)
-        let res = await this.request(`auth/register`, data, "post");
-        return res.token;
+        let res = await this.request(`auth/register`, token, data, "post");
+        return res;
     }
 
     /** Edit user profile. */
 
-    //Returns { username, firstName, lastName, email, isAdmin }
+    // Params { data, username }
+    //Returns { username, first_name, last_name, email, isAdmin }
 
-    static async edit(data, username) {
-        let res = await this.request(`users/${username}`, data, "patch");
-        return res.user;
+    static async edit(data, username, token) {
+        let res = await this.request(`users/${username}`, token, data, "patch");
+        return res;
     }
 
-      /** Get User Info. */
+    /** Get User Info. */
 
-        //Returns { user_id, username, first_name, last_name, is_admin, shopping_cart_id }
+        // Params { username }
+        //Returns { user_id, username, first_name, last_name, is_admin, shopping_cart_id, email }
 
-    static async getUserInfo(username) {
-        let res = await this.request(`users/${username}`);
-        return res.user;
-    }
+        static async getUserInfo(username, token) {
+            let res = await this.request(`users/${username}`, token);
+            return res;
+        }
 
     /** Get all items in shopping cart for user */
 
+    // Params { username, user_id }
     //Returns { [ {item_id, store_name, shopping_cart_id, asin }, ... ]} 
 
-    static async getAllItemsInShoppingCart(username, user_id){
-        let res = await this.request(`users/${username}/${user_id}/shoppingcart`);
-        return res.items;
+    static async getAllItemsInShoppingCart(username, user_id, token){
+        let res = await this.request(`users/${username}/${user_id}/shoppingcart`, token);
+        return res;
     }
 
     /** Add an item to shopping cart for user */
 
+    //Params {username, user_id, store_name, asin}
     //Returns { [ {item_id, store_name, shopping_cart_id, asin }, ... ]} (all items in current cart)
 
-    static async addItemToShoppingCart(username, user_id, store_name, asin){
-        let res = await this.request(`users/${username}/${user_id}/shoppingcart/${store_name}/${asin}`, {}, "post");
-        return res.items;
+    static async addItemToShoppingCart(username, user_id, store_name, asin, token){
+        let res = await this.request(`users/${username}/${user_id}/shoppingcart/${store_name}/${asin}`, token, {}, "post");
+        return res;
 
     }
 
     /** Delete an item from shopping cart for user */
 
+    //Params {username, user_id, store_name, asin}
     //Returns { "successful" if successful, otherwise "not successful" }
 
-    static async deleteItem(username, user_id, store_name, asin){
-        let res = await this.request(`users/${username}/${user_id}/shoppingcart/${store_name}/${asin}`, {},"delete");
-        return res.delete_item;
+    static async deleteItem(username, user_id, store_name, asin, token){
+        let res = await this.request(`users/${username}/${user_id}/shoppingcart/${store_name}/${asin}`, token, {},"delete");
+        return res;
     }
-
-
 
     /** Checkout shopping cart for user */
 
+    //Params {username, user_id}
     //Returns (new shopping cart with items in it) {items: [ {item_id, store_name, shopping_cart, asin }, ... ]}
 
-    static async checkout(username, user_id){
-        let res = await this.request(`users/${username}/${user_id}/shoppingcart`, {}, "post");
-        return res.items;
+    static async checkout(username, user_id, token){
+        let res = await this.request(`users/${username}/${user_id}/shoppingcart`, token, {}, "post");
+        return res;
     }
 
     /** Update quantity for an item for user */
 
+    //Params {username, user_id, store_name, asin, quantity}
     //Returns { [ {item_id, store_name, shopping_cart_id, asin, quantity }, ... ]}
 
-    static async updateQuantity(username, user_id, store_name, asin, quantity){
-        let res = await this.request(`users/${username}/${user_id}/shoppingcart/${asin}/${quantity}`, {}, "post");
-        return res.items;
+    static async updateQuantity(username, user_id, store_name, asin, quantity, token){
+        let res = await this.request(`users/${username}/${user_id}/shoppingcart/${asin}/${quantity}`, token, {}, "post");
+        return res;
     }
-
 
 }
 

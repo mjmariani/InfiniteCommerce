@@ -4,8 +4,8 @@ import ReactDOM from 'react-dom';
 import ListGroup from 'react-bootstrap/ListGroup'
 import { Tab, Col, Row } from 'react-bootstrap'
 
-
 import 'react-accessible-accordion/dist/fancy-example.css';
+
 function MoreInfo(){
 
     return (

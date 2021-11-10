@@ -1,98 +1,69 @@
 import "./NavBar.css";
-import React, { useContext } from "react";
-
-import { NavLink, Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 //import { Navbar, Nav, NavItem, Container } from "reactstrap";
-import userContext from "./userContext"
-import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket';
+//import userContext from "./userContext"
+//import ShoppingCartProductCard from "./shoppingCartProductCard";
 import { Navbar, Container, Nav } from 'react-bootstrap'
-import { useState } from 'react';
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import {IconButton} from '@material-ui/core'
-import ShoppingCartProductCard from "./shoppingCartProductCard";
-import { SvgIcon } from '@material-ui/core';
-import { Drawer, Button, List, Divider, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket';
+import {useSelector, useDispatch} from "react-redux";
+import {selectUser, logoutState} from "./features/userSlice";
+import SideDrawer from "./SideDrawer";
 
-//Source: https://material-ui.com/components/drawers/#temporary-drawer
+function NavBar({refreshCart, setRefreshCart}){
 
-//Implement adding to quantity
-//Implement deleting an item from cart
+    //variable used to check if user is logged in
+    const userLoggedIn = useSelector(selectUser);
 
-function NavBar({ getAllItemsInCart, checkout, updateQuantity, deleteItem, cart, user }){
-    const useStyles = makeStyles({
-        list: {
-          width: 250,
-        },
-        fullList: {
-          width: 'auto',
-        },
-      });
+    const dispatch = useDispatch();
+
+    const userState = useSelector(selectUser)
+
+    //logout
+    const handleLogout = (evt) => {
+      evt.preventDefault();
       
-      const classes = useStyles();
-  const [state, setState] = React.useState({
-    right: false,
-  });
-const [check, setCheck] = useState(false);
+      dispatch(logoutState())
+      return <Redirect to="/info" />
+  }
 
-  const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
+  const [sideToggle, setSideToggle] = useState(false);
 
-    setState({ ...state, [anchor]: open });
-    setCheck(prevCheck => !prevCheck);
-  };
 
-  const list = (anchor) => (
-    <div
-      className={clsx(classes.list, {
-        [classes.fullList]: anchor === 'top' || anchor === 'bottom',
-      })}
-      role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
-    ><ShoppingBasketIcon />
-      <List>
-        
-        {!cart ? cart.map((item) => { 
-            <ShoppingCartProductCard item={item} />
-        }): <h3>No Items in your Cart</h3>}
-        
-      </List>
-      <Button onClick={() => {checkout()}} >Checkout</Button>
-    </div>
-  );
-    
     return(
         <div>
-            <Navbar bg="dark" variant="dark">
-                <Container>
-                <Navbar.Brand as={Link} to="/" className="navLogo">InfiniteCommerce</Navbar.Brand>
-                
-                <Nav className="ml-12 nav">
-                  <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                  <Nav.Link as={Link} to="/signup">Sign Up</Nav.Link>
-                    <Nav.Link as={Link} to="/info">Info</Nav.Link>
-                    <Nav.Link as={Link} to="/products">Products</Nav.Link>
-                  <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
-                  <Nav.Link onClick={toggleDrawer('right', true)}><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" /></Nav.Link>
-                  </Nav>
-                
-                </Container>
-            </Navbar>
-            <br />
-            <div>
-            {['right'].map((anchor) => (
-                <React.Fragment key={anchor}>
-                <Drawer anchor={anchor} open={state[anchor]} onClose={toggleDrawer(anchor, false)}>
-                    {list(anchor)}
-                </Drawer>
-                </React.Fragment>
-            ))}
-            </div>
-        </div>);
- 
+          { (!userLoggedIn) ? 
+            <><Navbar bg="dark" variant="dark">
+            <Container>
+              <Navbar.Brand as={Link} to="/" className="navLogo">InfiniteCommerce</Navbar.Brand>
+
+              <Nav className="ml-12 nav">
+                <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                <Nav.Link as={Link} to="/signup">Sign Up</Nav.Link>
+                <Nav.Link as={Link} to="/info">Info</Nav.Link>
+              </Nav>
+
+            </Container>
+          </Navbar><br /></> :
+          <><Navbar bg="dark" variant="dark">
+          <Container>
+          <Navbar.Brand as={Link} to="/" className="navLogo">InfiniteCommerce</Navbar.Brand>
+
+          <Nav className="ml-12 nav">
+            <Nav.Link as={Link} >Logged in as: {userState.username}  </Nav.Link>
+            <Nav.Link as={Link} onClick={(evt) => handleLogout(evt)}>Logout</Nav.Link>
+            <Nav.Link as={Link} to="/info">Info</Nav.Link>
+            <Nav.Link as={Link} to="/products">Products</Nav.Link>
+            <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
+            <Nav.Link><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" onClick={() => setSideToggle(!sideToggle)}/></Nav.Link>
+            <SideDrawer show={sideToggle} click={() => setSideToggle(!sideToggle)} refreshCart={refreshCart} setRefreshCart={setRefreshCart} /> 
+          </Nav>
+          </Container>
+          </Navbar><br /></>
+        }
+        </div>
+        );
 }
 
 export default NavBar;

@@ -43,9 +43,9 @@ function SearchBar ({ searchData, error, filterData }) {
     let getSuggestions = async (value) => {
         //isLoading();
         params.search_term = `${data}`;
-        if(filterData.sort_by != '' ){
+        if(filterData.sort_by !== '' ){
             params = { ...params, sort_by: filterData.sort_by[0] }
-        }else if(filterData.customer_location != ''){
+        }else if(filterData.customer_location !== ''){
             params = { ...params, customer_location: filterData.customer_location[0] }
         }
         const inputValue = value.trim().toLowerCase();
