@@ -8,94 +8,67 @@ const User = require("../models/users");
 const { createToken } = require("../helpers/tokens");
 
 async function commonBeforeAll() {
+    //await db.query("BEGIN"); 
     await db.query("DELETE FROM users");
 
     await db.query(`ALTER SEQUENCE users_user_id_seq RESTART WITH 1`);
 
-    const testUser = await User.register({
-        username: "testuser",
-        password: "password",
-        firstName: "Test",
-        lastName: "User",
-        email: "joes@gmail.com",
-        isAdmin: false,
-    });
+    const user = {username: "testuser", password: "password", 
+                  firstName: "Test", lastName: "User", email: "joes@gmail.com", 
+                  isAdmin: false}
 
-    const adminUser = await User.register({
-        username: "testadmin",
-        password: "password",
-        firstName: "Test",
-        lastName: "Admin!",
-        email: "joes@gmail.com",
-        isAdmin: true,
-    });
+    await User.register(user);
 
-    //adding a closed shopping cart for test user
-    await db.query(` 
-    INSERT INTO shopping_cart (user_id, is_closed)
-    VALUES (${ testUser.shopping_cart_id }, TRUE)
-    RETURNING shopping_cart_id 
-    `);
+    // let testUser_id = await db.query(` 
+    // SELECT user_id
+    // FROM users
+    // WHERE username = ${testuser}`);
 
-    //adding directly into test db items for both test user and admin user
-    await db.query(` 
-    INSERT INTO item (item_id, store_name, shopping_cart_id)
-    VALUES (1, 'Amazon', ${testUser.shopping_cart_id}),
-    (2, 'Amazon', ${testUser.shopping_cart_id}),
-    (3, 'Ebay', ${testUser.shopping_cart_id}),
-    (1, 'Amazon', ${adminUser.shopping_cart_id}),
-    (2, 'Amazon', ${adminUser.shopping_cart_id}),
-    (3, 'Ebay', ${adminUser.shopping_cart_id})
-    `);
+    //console.log("test user id rows", testUser_id);
 
-    //await db.query("COMMIT");
+    // let adminUser_id = await db.query(` 
+    // SELECT user_id
+    // FROM users
+    // WHERE username = ${testadmin}`);
+
+    // let shopping_cart_id_testUser_id = await db.query(` 
+    // INSERT INTO shopping_cart (is_closed, user_id)
+    // VALUES (FALSE, 1)
+    // RETURNING shopping_cart_id 
+    // `);
+
+    // let shopping_cart_id_adminUser_id = await db.query(` 
+    // INSERT INTO shopping_cart (is_closed, user_id)
+    // VALUES (FALSE, 2)
+    // RETURNING shopping_cart_id 
+    // `);
+
+    // //adding a closed shopping cart for test user
+    // const test_user_closed_cart = await db.query(` 
+    // INSERT INTO shopping_cart (user_id, is_closed)
+    // VALUES (1, TRUE)
+    // RETURNING shopping_cart_id 
+    // `);
+
+    // //adding directly into test db items for both test user and admin user
+    // await db.query(` 
+    // INSERT INTO item (item_id, store_name, shopping_cart_id)
+    // VALUES (1, 'Amazon', ${shopping_cart_id_testUser_id}),
+    // (2, 'Amazon', ${shopping_cart_id_testUser_id}),
+    // (3, 'Ebay', ${shopping_cart_id_testUser_id}),
+    // (1, 'Amazon', ${shopping_cart_id_adminUser_id}),
+    // (2, 'Amazon', ${shopping_cart_id_adminUser_id}),
+    // (3, 'Ebay', ${shopping_cart_id_adminUser_id})
+    // `);
 }
 
 async function commonBeforeEach() {
     await db.query("BEGIN");
-
-  //   const testUser = await User.register({
-  //     username: "testuser",
-  //     password: "password",
-  //     firstName: "Test",
-  //     lastName: "User",
-  //     email: "joes@gmail.com",
-  //     isAdmin: false,
-  // });
-
-  // const adminUser = await User.register({
-  //     username: "testadmin",
-  //     password: "password",
-  //     firstName: "Test",
-  //     lastName: "Admin!",
-  //     email: "joes@gmail.com",
-  //     isAdmin: true,
-  // });
-
-  // //adding a closed shopping cart for test user
-  // await db.query(` 
-  // INSERT INTO shopping_cart (user_id, is_closed)
-  // VALUES (${ testUser.shopping_cart_id }, TRUE)
-  // RETURNING shopping_cart_id 
-  // `);
-
-  // //adding directly into test db items for both test user and admin user
-  // await db.query(` 
-  // INSERT INTO item (item_id, store_name, shopping_cart_id)
-  // VALUES (1, 'Amazon', ${testUser.shopping_cart_id}),
-  // (2, 'Amazon', ${testUser.shopping_cart_id}),
-  // (3, 'Ebay', ${testUser.shopping_cart_id}),
-  // (1, 'Amazon', ${adminUser.shopping_cart_id}),
-  // (2, 'Amazon', ${adminUser.shopping_cart_id}),
-  // (3, 'Ebay', ${adminUser.shopping_cart_id})
-  // `);
-
-  // await db.query("COMMIT");
   }
   
   async function commonAfterEach() {
-    await db.query("DELETE FROM users");
-    //await db.query("ROLLBACK");
+    await db.query("COMMIT");
+    await db.query("ROLLBACK");
   }
   
   async function commonAfterAll() {

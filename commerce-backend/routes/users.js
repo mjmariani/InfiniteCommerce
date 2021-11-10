@@ -1,5 +1,3 @@
-"use strict";
-
 /** Routes for users. */
 
 const jsonschema = require("jsonschema");
@@ -33,11 +31,13 @@ const router = express.Router();
 router.post("/", ensureAdmin, async function (req, res, next){
     try{
         const validator = jsonschema.validate(req.body, newUserSchema);
-        if(!validator.isValid){
+        if(!validator.valid){
             const errs = validator.errors.map(e => e.stack);
             throw new BadRequestError(errs);
         }
         //register new user
+        //console.log(req.body);
+        
         const user = await User.register(req.body);
         //if no errors are thrown, then create token for new user
         const token = createToken(user);
@@ -100,11 +100,11 @@ router.get("/:username", ensureCorrectUserOrAdmin, async function (req, res, nex
 router.patch("/:username", ensureCorrectUserOrAdmin, async function (req, res, next){
     try{
         //validate json request sent
-        // const validator = jsonschema.validate(req.body, editUserSchema);
-        // if(!validator.isValid){
-        //     const errs = validator.errors.map(e => e.stack);
-        //     throw new BadRequestError(errs);
-        // }
+         const validator = jsonschema.validate(req.body, editUserSchema);
+         if(!validator.valid){
+             const errs = validator.errors.map(e => e.stack);
+             throw new BadRequestError(errs);
+         }
 
         const user = await User.update(req.params.username, req.body);
         return res.json({ user });

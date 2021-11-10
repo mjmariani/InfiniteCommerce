@@ -1,37 +1,37 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://example.com/example.json",
-    "type": "object",
-    "title": "The root schema",
-    "description": "The root schema comprises the entire JSON document.",
+    "$schema": "http://json-schema.org/draft-07/schema",
     "default": {},
+    "description": "The root schema comprises the entire JSON document.",
     "examples": [
         {
-            "first_name": "Kevin",
-            "last_name": "Markson",
-            "password": "pass",
-            "email": "markson@gmail.com"
+            "firstName": "First-new",
+            "lastName": "Last-newL",
+            "password": "password-new",
+            "email": "new@email.com"
         }
     ],
+    "title": "The root schema",
+    "type": "object",
     "properties": {
-        "first_name": {
-            "$id": "#/properties/first_name",
+        "firstName": {
+            "$id": "#/properties/firstName",
             "type": "string",
             "title": "The firstName schema",
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "Kevin"
+                "First-new"
             ]
         },
-        "last_name": {
-            "$id": "#/properties/last_name",
+        "lastName": {
+            "$id": "#/properties/lastName",
             "type": "string",
             "title": "The lastName schema",
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "Markson"
+                "Last-newL"
             ]
         },
         "password": {
@@ -41,19 +41,21 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "pass"
+                "password-new"
             ]
         },
         "email": {
             "$id": "#/properties/email",
+            "title": "Email address",
             "type": "string",
-            "title": "The email schema",
+            "pattern": "^\\S+@\\S+\\.\\S+$",
+            "format": "email",
+            "minLength": 6,
+            "maxLength": 127,
             "description": "An explanation about the purpose of this instance.",
-            "default": "",
             "examples": [
-                "markson@gmail.com"
-            ],
-            "format": "email"
+                "new@email.com"
+            ]
         }
     },
     "additionalProperties": true

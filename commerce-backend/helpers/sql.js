@@ -1,5 +1,5 @@
 //Source: Springboard 
-// Helper function for SQL 
+// Helper function for SQL query preparation  
 
 const { BadRequestError } = require("../expressError");
 

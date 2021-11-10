@@ -1,27 +1,27 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://example.com/example.json",
-    "type": "object",
-    "title": "The root schema",
-    "description": "The root schema comprises the entire JSON document.",
+    "$schema": "http://json-schema.org/draft-07/schema",
     "default": {},
+    "description": "The root schema comprises the entire JSON document.",
     "examples": [
         {
-            "username": "chrome2x",
-            "password": "pass",
-            "first_name": "Kevin",
-            "last_name": "Markson",
-            "email": "markson@gmail.com",
-            "is_admin": "False"
+            "username": "u-new",
+            "firstName": "First-new",
+            "lastName": "Last-newL",
+            "password": "password-new",
+            "email": "new@email.com",
+            "isAdmin": false
         }
     ],
     "required": [
         "username",
+        "firstName",
+        "lastName",
         "password",
-        "first_name",
-        "last_name",
         "email"
     ],
+    "title": "The root schema",
+    "type": "object",
     "properties": {
         "username": {
             "$id": "#/properties/username",
@@ -30,7 +30,27 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "chrome2x"
+                "u-new"
+            ]
+        },
+        "firstName": {
+            "$id": "#/properties/firstName",
+            "type": "string",
+            "title": "The firstName schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "First-new"
+            ]
+        },
+        "lastName": {
+            "$id": "#/properties/lastName",
+            "type": "string",
+            "title": "The lastName schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Last-newL"
             ]
         },
         "password": {
@@ -40,50 +60,31 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "pass"
-            ]
-        },
-        "first_name": {
-            "$id": "#/properties/first_name",
-            "type": "string",
-            "title": "The firstName schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "Kevin"
-            ]
-        },
-        "last_name": {
-            "$id": "#/properties/last_name",
-            "type": "string",
-            "title": "The lastName schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "Markson"
+                "password-new"
             ]
         },
         "email": {
             "$id": "#/properties/email",
-            "default": "",
+            "title": "Email address",
+            "type": "string",
+            "pattern": "^\\S+@\\S+\\.\\S+$",
+            "format": "email",
+            "minLength": 6,
+            "maxLength": 127,
             "description": "An explanation about the purpose of this instance.",
             "examples": [
-                "markson@gmail.com"
-            ],
-            "title": "The email schema",
-            "type": "string",
-            "format": "email"
+                "new@email.com"
+            ]
         },
         "isAdmin": {
-            "$id": "#/properties/is_admin",
-            "default": "",
-            "description": "boolean value of isAdmin; not required",
-            "examples": [
-                "False"
-            ],
+            "$id": "#/properties/isAdmin",
+            "type": "boolean",
             "title": "The isAdmin schema",
-            "type": "boolean"
-            
+            "description": "An explanation about the purpose of this instance.",
+            "default": false,
+            "examples": [
+                false
+            ]
         }
     },
     "additionalProperties": true

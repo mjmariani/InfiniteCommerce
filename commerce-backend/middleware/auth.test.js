@@ -1,7 +1,5 @@
 //Source: Springboard
 
-"use strict";
-
 const jwt = require("jsonwebtoken");
 const { UnauthorizedError } = require("../expressError");
 const {

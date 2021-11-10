@@ -58,6 +58,7 @@ static async authenticate(username, password){
 static async register( 
     {username, password, firstName, lastName, email, isAdmin}
 ){
+    //prevent duplicate usernames
     const checkDuplicateUsers = await db.query(
         `SELECT username
          FROM users
@@ -81,18 +82,21 @@ static async register(
         [username, hashedPassword, firstName, lastName, email, isAdmin],
     );
 
-    //find a way to refresh or flush data in db
-    
-
     const user = userResult.rows[0];
     //console.log(user);
+    //console.log(await db.query(`SELECT user_id FROM users`));
+
+    const newUserId = +user.user_id;
+    //console.log(newUserId);
+    
+    //console.log(results);
 
     const userShoppingCartResult = await db.query( 
         `INSERT INTO shopping_cart
         (user_id)
         VALUES ($1)
         RETURNING shopping_cart_id`,
-        [user.user_id]
+        [newUserId]
     );
 
     //add shopping cart id into users object
@@ -125,9 +129,9 @@ static async findAll() {
 
 static async get(username){
     const userRes = await db.query( 
-        `SELECT users.user_id, users.username, users.first_name AS "firstName, users.last_name AS "lastName", users.email, users.is_admin AS "isAdmin", shopping_cart.shopping_cart_id
+        `SELECT users.user_id, users.username, users.first_name AS firstName, users.last_name AS lastName, users.email, users.is_admin AS isAdmin, shopping_cart.shopping_cart_id
         FROM users INNER JOIN shopping_cart ON users.user_id = shopping_cart.user_id
-        WHERE (username = $1 AND shopping_cart.is_closed = $2)`,
+        WHERE (users.username = $1 AND shopping_cart.is_closed = $2)`,
         [username, false],
     );
 
@@ -144,7 +148,7 @@ static async get(username){
    * all the fields; this only changes provided ones.
    *
    * Data can include:
-   *   { firstName, lastName, password, email }
+   *   { first_name, last_name, password, email }
    *
    * Returns { username, firstName, lastName, email, isAdmin }
    *
@@ -190,7 +194,7 @@ static async update(username, data){
 }
 
 /** Delete given user from database; returns true */
-
+//throws: NotFoundError if user not found
 static async remove(username){
     let result = await db.query( 
         `DELETE
@@ -210,7 +214,7 @@ static async remove(username){
 // /** Add or update/overwrite a store_name to user's opened shopping cart
 //  *  
 //  * 
-//  * @returns username, storeName and shoppingCartID
+//  * returns username, storeName and shoppingCartID
 //  */
 
 // static async updateStoreName(shoppingCartID, storeName){
@@ -226,10 +230,12 @@ static async remove(username){
 //     return updateStoreName.rows[0]
 // }
 
+//Note: below includes different way of annotating the functions.
 
 /** Find a shopping cart for User
  * @params: userId
  * @returns: shopping_cart_id
+ * @throws: NotFoundError
  **/
 
 static async findShoppingCartByUserId(userId){
@@ -252,6 +258,7 @@ static async findShoppingCartByUserId(userId){
 /** Find a shopping cart for User
  * @params: username
  * @returns: shopping_cart_id
+ * @throws: NotFoundError
  **/
 
  static async findShoppingCartByUsername(username){
@@ -279,7 +286,7 @@ static async findShoppingCartByUserId(userId){
         [userIdRes, false]
     );
 
-    return result.rows[0];
+    return result.rows[0].shopping_cart_id;
 }
 
 
@@ -324,20 +331,22 @@ return setNewShoppingCart.rows[0].shopping_cart_id;
 static async addItem(shopping_cart_id, store_name, asin){
 
     //getting user's current opened shopping cart id
-    //const userShoppingCart = user.shopping_cart_id;
 
     const shoppingCartId = await db.query(
         `SELECT shopping_cart_id
         FROM shopping_cart
-        WHERE shopping_cart = $1`,
-        [shopping_cart_id]
+        WHERE shopping_cart_id = ${shopping_cart_id}`
     )
 
-    if(!shoppingCartId) return undefined
+    if(!shoppingCartId.rows[0]){
+        return undefined
+    }else{
+        shopping_cart_id = await shoppingCartId.rows[0].shopping_cart_id;
+    }
 
     const addItem = await db.query( 
         `INSERT INTO item
-        (shopping_cart, store_name, asin)
+        (shopping_cart_id, store_name, asin)
         VALUES ($1, $2, $3)
         RETURNING item_id, asin`,
         [shopping_cart_id, store_name, asin]
