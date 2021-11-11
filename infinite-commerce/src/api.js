@@ -81,7 +81,7 @@ class CommerceAPI {
     /** Get all items in shopping cart for user */
 
     // Params { username, user_id }
-    //Returns { [ {item_id, store_name, shopping_cart_id, asin }, ... ]} 
+    //Returns { shopping_cart_id, items: [ {item_id, shopping_cart_id, store_name, asin, quantity }, ... ]} 
 
     static async getAllItemsInShoppingCart(username, user_id, token){
         let res = await this.request(`users/${username}/${user_id}/shoppingcart`, token);
@@ -91,7 +91,7 @@ class CommerceAPI {
     /** Add an item to shopping cart for user */
 
     //Params {username, user_id, store_name, asin}
-    //Returns { [ {item_id, store_name, shopping_cart_id, asin }, ... ]} (all items in current cart)
+    //Returns { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id, asin, quantity }, ... ]} (all items in current cart)
 
     static async addItemToShoppingCart(username, user_id, store_name, asin, token){
         let res = await this.request(`users/${username}/${user_id}/shoppingcart/${store_name}/${asin}`, token, {}, "post");
@@ -112,7 +112,7 @@ class CommerceAPI {
     /** Checkout shopping cart for user */
 
     //Params {username, user_id}
-    //Returns (new shopping cart with items in it) {items: [ {item_id, store_name, shopping_cart, asin }, ... ]}
+    //Returns (new shopping cart with items in it) {shopping_cart_id, items: [ {item_id, store_name, shopping_cart, asin }, ... ]}
 
     static async checkout(username, user_id, token){
         let res = await this.request(`users/${username}/${user_id}/shoppingcart`, token, {}, "post");

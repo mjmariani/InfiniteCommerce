@@ -1,6 +1,6 @@
 import "./NavBar.css";
 import React, { useState, useContext } from "react";
-import { Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 //import { Navbar, Nav, NavItem, Container } from "reactstrap";
 //import userContext from "./userContext"
@@ -20,12 +20,15 @@ function NavBar({refreshCart, setRefreshCart}){
 
     const userState = useSelector(selectUser)
 
+    const history = useHistory();
+
     //logout
     const handleLogout = (evt) => {
       evt.preventDefault();
       
       dispatch(logoutState())
-      return <Redirect to="/info" />
+      // return <Redirect to="/info" />
+      return history.push('/info'); //redirect to '/info' page
   }
 
   const [sideToggle, setSideToggle] = useState(false);

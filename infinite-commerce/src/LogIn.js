@@ -2,7 +2,7 @@ import "./LogIn.css";
 import AlertDismissible from "./AlertDismissible";
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
-import { Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import CommerceAPI from "./api";
 import React, {useState} from 'react';
 import {useDispatch} from "react-redux";
@@ -55,6 +55,8 @@ function Login(){
 
     //to use the redux dispatch method
     const dispatch = useDispatch();
+
+    const history = useHistory();
     
     const handleSubmit = async (evt) => {
         evt.preventDefault();
@@ -91,7 +93,8 @@ function Login(){
             //put user info into local storage
             localStorage.setItem('user_data', JSON.stringify(user_data));
 
-            return <Redirect to="/products" />
+            // return <Redirect to="/products" />
+            return history.push('/products'); //redirect to '/products' page using useHistory hook
 
         }catch(err){
             

@@ -3,7 +3,8 @@ import {createSlice} from "@reduxjs/toolkit";
 export const userSlice = createSlice({
     name:"user", 
     initialState:{
-        user:null
+        user:null,
+        cart: null,
     },
     reducers:{
         loginState: (state, action) => {
@@ -22,6 +23,6 @@ export const {loginState, logoutState, shoppingCartState} = userSlice.actions;
 
 export const selectUser = (state) => state.user.user;
 
-export const selectCart = (state) => state.cart.user;
+export const selectCart = (state) => state.user.cart;
 
 export default userSlice.reducer;
