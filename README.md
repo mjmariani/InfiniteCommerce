@@ -56,6 +56,7 @@ Postgres
 ### Testing:
 Jest<br/>
 Supertest
+React Testing Library
 
 ## Usage
 
