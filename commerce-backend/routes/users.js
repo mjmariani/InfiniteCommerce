@@ -208,7 +208,7 @@ router.delete("/:username/:user_id/shoppingcart/:store_name/:asin", ensureCorrec
     }
 });
 
-/** POST /[username]/[user_id]/shoppingcart => (new shopping cart) { shopping_cart_id, items: [ {item_id, store_name }, ... ]}
+/** POST /[username]/[user_id]/shoppingcart => (new shopping cart) { new_shopping_cart_id, items: [ {item_id, store_name }, ... ]}
  * 
  * Checkout one shopping cart (close current shopping cart) and create a new shopping cart automatically
  * @params: username, user_id
@@ -218,7 +218,7 @@ router.delete("/:username/:user_id/shoppingcart/:store_name/:asin", ensureCorrec
 router.post("/:username/:user_id/shoppingcart", ensureCorrectUserOrAdmin, async function (req, res, next){
     try{
         const new_shopping_cart_id = await User.closeShoppingCartByCartId(req.params.user_id);
-        const items = await User.getAllItemsForCurrentCart(req.params.user_id,shopping_cart_id);
+        const items = await User.getAllItemsForCurrentCart(req.params.user_id,new_shopping_cart_id);
         return res.json({ new_shopping_cart_id, items });
     }catch(err){
         return next(err);

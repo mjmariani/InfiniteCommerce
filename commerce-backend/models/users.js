@@ -252,7 +252,7 @@ static async findShoppingCartByUserId(userId){
         throw new NotFoundError(`No user id: ${userId} exists in the database`); 
     }
 
-    return result.rows[0];
+    return result.rows[0].shopping_cart_id;
 }
 
 /** Find a shopping cart for User
@@ -316,7 +316,7 @@ const setNewShoppingCart = await db.query(
     (user_id)
     VALUES ($1)
     RETURNING user_id, shopping_cart_id, is_closed`,
-    [user.user_id]
+    [user_id]
 );
 
 //return new shopping_cart_id
