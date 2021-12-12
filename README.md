@@ -73,7 +73,7 @@ Future Implementations:</br>
 3. Add any item to the shopping cart.<br/>
 4. Then you can checkout the products once you've selected all your products/items.<br/>
 
-##Testing
+## Testing
 
 To run the tests, we will use jest for back-end and run from the CLI:
 
