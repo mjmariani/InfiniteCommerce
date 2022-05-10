@@ -323,15 +323,38 @@ const setNewShoppingCart = await db.query(
 return setNewShoppingCart.rows[0].shopping_cart_id;
 }
 
+/** Update quantity of an item to current shopping cart for User
+ * 
+ * @params shopping_cart_id, item_id, store_name, quantity
+ * @returns itemId, quantity, asin
+ */
+ static async updateQuantityOfItem(shopping_cart_id, asin, store_name, quantity){
+    const shoppingCartId = await db.query(
+        `SELECT shopping_cart_id
+        FROM shopping_cart
+        WHERE shopping_cart = $1`,
+        [shopping_cart_id]
+    )
+    
+    if(!shoppingCartId) return undefined
+
+    const addItem = await db.query( 
+        `UPDATE item
+        SET quantity = $1
+        WHERE (shopping_cart_id = $2 AND asin = $3 AND store_name = $4)
+        RETURNING item_id, quantity, asin`,
+        [quantity, shopping_cart_id, asin, store_name]
+    );
+    return addItem.rows[0];
+}
+
 /** Add an item to current shopping cart for User
  * 
  * @params shopping_cart_id, asin, store_name
  * @returns itemId, asin
  */
 static async addItem(shopping_cart_id, store_name, asin){
-
     //getting user's current opened shopping cart id
-
     const shoppingCartId = await db.query(
         `SELECT shopping_cart_id
         FROM shopping_cart
@@ -344,44 +367,44 @@ static async addItem(shopping_cart_id, store_name, asin){
         shopping_cart_id = await shoppingCartId.rows[0].shopping_cart_id;
     }
 
-    const addItem = await db.query( 
+    //check to see if item asin is already in item table
+    const existASIN = await db.query(
+        `SELECT asin
+        FROM item
+        WHERE (asin = $1 AND shopping_cart_id = $2)`,
+        [asin, shopping_cart_id]
+    );
+
+    //if not in then add item to table, otherwise update quantity
+    let addItem;
+    if(!existASIN.rows[0]){
+        addItem = await db.query( 
         `INSERT INTO item
         (shopping_cart_id, store_name, asin)
         VALUES ($1, $2, $3)
         RETURNING item_id, asin`,
         [shopping_cart_id, store_name, asin]
-    );
-
+        );
+    }else{
+        let newQuantity = await db.query(
+            `SELECT quantity
+            FROM item
+            WHERE (asin = $1 AND shopping_cart_id = $2)`,
+            [asin, shopping_cart_id]
+        ); 
+        newQuantity.rows[0].quantity += 1;
+        let newQuantityItem = newQuantity.rows[0].quantity;
+        addItem = await db.query( 
+            `UPDATE item
+            SET quantity = $1
+            WHERE (shopping_cart_id = $2 AND asin = $3 AND store_name = $4)
+            RETURNING item_id, quantity, asin`,
+            [newQuantityItem, shopping_cart_id, asin, store_name]
+        );
+        delete addItem.rows[0].quantity;
+    }
     return addItem.rows[0];
 }
-
-/** Update quantity of an item to current shopping cart for User
- * 
- * @params shopping_cart_id, item_id, store_name, quantity
- * @returns itemId, quantity, asin
- */
- static async updateQuantityOfItem(shopping_cart_id, asin, store_name, quantity){
-
-    const shoppingCartId = await db.query(
-        `SELECT shopping_cart_id
-        FROM shopping_cart
-        WHERE shopping_cart = $1`,
-        [shopping_cart_id]
-    )
-
-    if(!shoppingCartId) return undefined
-
-    const addItem = await db.query( 
-        `UPDATE item
-        SET quantity = $1
-        WHERE (shopping_cart_id = $2 AND asin = $3 AND store_name = $4)
-        RETURNING item_id, quantity, asin`,
-        [quantity, shopping_cart_id, asin, store_name]
-    );
-
-    return addItem.rows[0];
-}
-
 
 /** Delete an item to current shopping cart for User
  * 
@@ -416,7 +439,7 @@ static async getAllItemsForCurrentCart(user_id, shopping_cart_id){
     //const user_id = user.user_id;
 
     const allItems = await db.query(
-        `SELECT item.item_id, item.store_name, item.shopping_cart_id, item.asin, item,quantity
+        `SELECT item.item_id, item.store_name, item.shopping_cart_id, item.asin, item.quantity
         FROM item
         INNER JOIN shopping_cart ON item.shopping_cart_id = shopping_cart.shopping_cart_id
         WHERE (item.shopping_cart_id = $1 AND shopping_cart.user_id = $2 AND shopping_cart.is_closed = $3)`,
