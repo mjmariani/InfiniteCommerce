@@ -1,5 +1,5 @@
 .sidedrawer {
-    width: 15%;
+    width: 30%;
     height: 100vh;
     background: white;
     position: fixed;
@@ -55,7 +55,7 @@
 .checkout__button {
     display: block;
     width: 50%;
-    margin-left: 30%;
+    margin-left: 27%;
     margin-bottom: -10%;
     text-decoration: none;
     text-align: center;
@@ -95,4 +95,14 @@
     .sidedrawer{
     display: none 
     }
+}
+
+.no-item {
+  text-align: center;
+  font-size: 20px;
+}
+
+.total {
+  text-align: center;
+  font-size: 20px;
 }

@@ -1,24 +1,21 @@
 import "./NavBar.css";
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
-//import { Navbar, Nav, NavItem, Container } from "reactstrap";
-//import userContext from "./userContext"
-//import ShoppingCartProductCard from "./shoppingCartProductCard";
 import { Navbar, Container, Nav } from 'react-bootstrap'
 import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket';
 import {useSelector, useDispatch} from "react-redux";
 import {selectUser, logoutState} from "./features/userSlice";
 import SideDrawer from "./SideDrawer";
 
-function NavBar({refreshCart, setRefreshCart}){
+function NavBar({params, cartData, changeCartData}){
 
     //variable used to check if user is logged in
     const userLoggedIn = useSelector(selectUser);
 
     const dispatch = useDispatch();
 
-    const userState = useSelector(selectUser)
+    const userState = useSelector(selectUser);
 
     const history = useHistory();
 
@@ -54,13 +51,13 @@ function NavBar({refreshCart, setRefreshCart}){
           <Navbar.Brand as={Link} to="/" className="navLogo">InfiniteCommerce</Navbar.Brand>
 
           <Nav className="ml-12 nav">
-            <Nav.Link as={Link} >Logged in as: {userState.username}  </Nav.Link>
-            <Nav.Link as={Link} onClick={(evt) => handleLogout(evt)}>Logout</Nav.Link>
+            <Nav.Link as={Link} to="/profile">Logged in as: {userState.username}  </Nav.Link>
+            <Nav.Link as={Link} onClick={(evt) => handleLogout(evt)} to="/info">Logout</Nav.Link>
             <Nav.Link as={Link} to="/info">Info</Nav.Link>
             <Nav.Link as={Link} to="/products">Products</Nav.Link>
             <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
-            <Nav.Link><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" onClick={() => setSideToggle(!sideToggle)}/></Nav.Link>
-            <SideDrawer show={sideToggle} click={() => setSideToggle(!sideToggle)} refreshCart={refreshCart} setRefreshCart={setRefreshCart} /> 
+            <Nav.Link to=""><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" onClick={() => setSideToggle(!sideToggle)}/></Nav.Link>
+            <SideDrawer show={sideToggle} click={() => setSideToggle(!sideToggle)} params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData} /> 
           </Nav>
           </Container>
           </Navbar><br /></>

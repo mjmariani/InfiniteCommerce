@@ -1,7 +1,6 @@
 import './Info.css';
 import { Button } from 'react-bootstrap'
-import {Link, useParams } from "react-router-dom";
-// import {Helmet} from 'react-helmet';
+import { Link } from "react-router-dom";
 
 function Info(){
 

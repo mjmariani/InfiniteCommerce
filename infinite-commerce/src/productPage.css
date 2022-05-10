@@ -2,3 +2,17 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 }
+
+#spinner {
+    position: absolute;
+    top: 50%;
+    left: 45%;
+    margin-left: -70px;
+    margin-top: -50px;
+}
+
+#errorMsg {
+    text-align: center;
+    box-sizing: border-box;
+    right: 50%;
+}
