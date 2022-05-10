@@ -6,7 +6,7 @@ import CommerceAPI from "./api";
 import { shoppingCartState } from "./features/userSlice";
 import axios from 'axios';
 
-function FilterCard({ suggestion, cartData, changeCartData, params }){
+function FilterCard({ suggestion, cartData, changeCartData, params, cartDone, setCartDone }){
 //implement what happens when item is added to shopping cart
 
 //to get user info in redux store
@@ -14,14 +14,13 @@ const userState = useSelector(selectUser);
 //to use the redux dispatch method
 const dispatch = useDispatch();
 const [errorFlag, setErrorFlag] = useState(false);
-    const [done, setDone] = useState(true);
     const changeErrorFlag = () => {
         setErrorFlag(errorFlag => !errorFlag);
     }
 
 async function addToCart(evt, suggestion){
     evt.preventDefault();
-    setDone(false);
+    setCartDone(false);
     //send product info to shopping cart
     //Returns { shopping_cart_id, items: [ {item_id, store_name, shopping_cart_id, asin }, ... ]} (all items in current cart)
     const itemsInCart = await CommerceAPI.addItemToShoppingCart(userState.username, userState.user_id, 'Amazon', suggestion.asin, userState.token);
@@ -42,7 +41,7 @@ async function addToCart(evt, suggestion){
         //console.log(JSON.stringify(params));
         const response = await axios.get('https://api.rainforestapi.com/request', { params });
         const data = await response.data.product;
-        console.log(data);
+        //console.log(data);
         const title = data.title;
         let price = 0.00;
         if(data.buybox_winner.price.value){
@@ -55,7 +54,8 @@ async function addToCart(evt, suggestion){
             image = data.images[0].link;
         }
         let total = price * quantity;
-        for(let item of itemsInCart.items){
+        let currentCartData = cartData;
+        for(let item of currentCartData){
             if(item.asin === itemASIN){
                 item.title = title;
                 item.price = price;
@@ -64,13 +64,15 @@ async function addToCart(evt, suggestion){
                 item.quantity = quantity;
             }
         }
+        changeCartData(currentCartData);
+        localStorage.setItem('additional_cart_info', JSON.stringify(currentCartData));
         //put user cart into local storage
         localStorage.setItem('user_cart', JSON.stringify(itemsInCart));
     }catch(err){
         if(errorFlag !== true){
             changeErrorFlag();
         }
-        setDone(true);
+            setCartDone(true);
         return;
     }
     //add data into redux store
@@ -78,7 +80,10 @@ async function addToCart(evt, suggestion){
     dispatch(
         shoppingCartState(itemsInCart)
     )
-    changeCartData(itemsInCart);
+    changeCartData(itemsInCart.items);
+    if(cartDone !== true){
+        setCartDone(true);
+    }
 }
 
     return (

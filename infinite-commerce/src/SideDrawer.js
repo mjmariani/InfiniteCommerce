@@ -11,9 +11,8 @@ import CartItem from "./CartItem";
 import { Wrapper } from "./SideDrawer.styles.js";
 import { useCallback } from 'react';
 
-const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
+const SideDrawer = ({show, click, params, cartData, changeCartData, cartDone, setCartDone}) => {
     const [errorFlag, setErrorFlag] = useState(false);
-    const [done, setDone] = useState(true);
     const changeErrorFlag = () => {
         setErrorFlag(errorFlag => !errorFlag);
     }
@@ -52,9 +51,29 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
             }
             //add data into redux store
             //save cart data in redux state
-            dispatch(shoppingCartState(cartDataRes.items));
-            changeCartData(cartDataRes.items);
-            localStorage.setItem('user_cart', JSON.stringify(cartDataRes.items));
+            dispatch(shoppingCartState(cartDataRes));
+            let cartDataTmp = cartData;
+            for(let itemRes of cartDataRes.items){
+                let exists = false;
+                for(let itemCartData of cartDataTmp){
+                    if(itemCartData.asin === itemRes){
+                        exists = true;
+                        itemCartData.quantity = itemRes.quantity;
+                    }
+                }
+                if(exists === false){
+                    let asin = itemRes.asin;
+                    for(let i = 0;i<cartDataTmp.length;i++){
+                        if(cartDataTmp[i].asin === asin){
+                            delete cartDataTmp[i];
+                        }
+                    }
+                }
+            }
+            changeCartData(cartDataTmp);
+            
+            //changeCartData(cartDataRes.items);
+            localStorage.setItem('user_cart', JSON.stringify(cartDataRes));
             return cartDataRes.items;
         }
         updateCartData();
@@ -104,6 +123,7 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
             }
         }
         updateCart();
+        console.log(cartData)
     },[cartData, errorFlag, updateCartData])
 
     async function checkoutItemCount() {
@@ -111,7 +131,10 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
         //implement a way to use this data in the shopping cart in the future.
         const token = userState.token;
         const newShoppingCart = await CommerceAPI.checkout(userState.username, userState.user_id, userState.token);
+        newShoppingCart.shopping_cart_id = newShoppingCart.new_shopping_cart_id;
+        delete newShoppingCart.new_shopping_cart_id;
         dispatch(shoppingCartState(newShoppingCart));
+        changeCartData(newShoppingCart.items);
         localStorage.setItem('user_cart', JSON.stringify(newShoppingCart));
         //add new shoppingcart ID to redux store
         const updatedUserData = await CommerceAPI.getUserInfo(userState.username, userState.token);
@@ -136,7 +159,9 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
 
     //Increment quantity for an item in cart
     async function addToCart(item){
-        setDone(false);
+        if(cartDone === true){
+            setCartDone(false);
+        }
         const username = userState.username;
         const user_id = userState.user_id;
         const store_name = item.store_name;
@@ -152,12 +177,15 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
                 if(errorFlag !== true){
                     changeErrorFlag();
                 }
-                setDone(true);
+                if(cartDone !== true){
+                    setCartDone(true);
+                }
                 return;
         }
+        console.log(itemsInCart)
         let addedDetailsItemsInCart = {};
-        addedDetailsItemsInCart.new_shopping_cart_id = cartState.new_shopping_cart_id
-        addedDetailsItemsInCart.items = itemsInCart;
+        addedDetailsItemsInCart.shopping_cart_id = cartState.shopping_cart_id
+        addedDetailsItemsInCart.items = itemsInCart.items;
         //add data into redux store
         //save cart data in redux state
         dispatch(
@@ -167,12 +195,16 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
         if(errorFlag === true){
             changeErrorFlag();
         }
-        setDone(true);
+        if(cartDone !== true){
+            setCartDone(true);
+        }
     }
 
     //decrement quantity for an item in cart
     async function removeFromCart(item){
-        setDone(false);
+        if(cartDone === true){
+            setCartDone(false);
+        }
         const username = userState.username;
         const user_id = userState.user_id;
         const store_name = item.store_name;
@@ -190,7 +222,9 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
                 if(errorFlag !== true){
                     changeErrorFlag();
                 }
-                setDone(true);
+                if(cartDone !== true){
+                    setCartDone(true);
+                }
                 return;
             }
         }else{
@@ -204,7 +238,9 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
                 if(errorFlag !== true){
                     changeErrorFlag();
                 }
-                setDone(true);
+                if(cartDone !== true){
+                    setCartDone(true);
+                }
                 return;
             }
             addedDetailsItemsInCart.new_shopping_cart_id = cartState.new_shopping_cart_id
@@ -219,11 +255,12 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
         if(errorFlag === true){
             changeErrorFlag();
         }
-        setDone(true);
+        if(cartDone !== true){
+            setCartDone(true);
+        }
     }
     
     function calculateTotal(cartData){
-        console.log(cartData);
         if(cartData !== undefined && cartData.length > 0){
             let total = cartData.reduce((acc, item) => acc + item.total, 0)
             return total;
@@ -247,7 +284,7 @@ const SideDrawer = ({show, click, params, cartData, changeCartData}) => {
                 </li>
             </ul>
             {cartState.items.length === 0 ? <p className="no-item">No items in cart.</p> : null}
-            { done === false ? <li id="spinner"> <ReactLoading type={"bubbles"} color={"#72bcd4"} height={400} width={200} /> </li> : 
+            { cartDone === false ? <li id="spinner"> <ReactLoading type={"bubbles"} color={"#72bcd4"} height={400} width={200} /> </li> : 
             <>
             <Wrapper>
                 {(cartData != null) ? cartData.map((item) => (

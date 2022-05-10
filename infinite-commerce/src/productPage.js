@@ -9,7 +9,7 @@ import ReactLoading from 'react-loading';
 //implement next page feature
 //implement infinite scroll
 
-function ProductPage({params, cartData, changeCartData}){
+function ProductPage({params, cartData, changeCartData, cartDone, setCartDone}){
     const [data, setData] = useState('');
     let [filterData, setFilterData] = useState({
         'sort_by': '',
@@ -26,6 +26,7 @@ function ProductPage({params, cartData, changeCartData}){
     const changeDoneFlag = () => {
         setDone(done => !done);
     }
+
 
     const changeFilterData = (filter, value) => {
         setFilterData(filterData => ({ ...filterData, [filter]: [value]}));
@@ -65,7 +66,7 @@ function ProductPage({params, cartData, changeCartData}){
                                 {(data) ? data.map((result, index) => {
                             //  console.log(result);
                                     return ( 
-                                    <FilterCard suggestion={ result } key={index} changeCartData={(data) => changeCartData(data)} cartData={cartData} params={params} />
+                                    <FilterCard suggestion={ result } key={index} changeCartData={(data) => changeCartData(data)} cartData={cartData} params={params} cartDone={cartDone} setCartDone={setCartDone}/>
                                     )
                         }): <p></p>}
                             </div>}

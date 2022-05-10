@@ -32,6 +32,10 @@ function Home(){
 
     const userInfoLocalStorage = localStorage.getItem('user_data');
     const userCartInfoLocalStorage = localStorage.getItem('user_cart');
+    let additionalUserCartInfoLocalStorage;
+    if(localStorage.getItem('additional_cart_info')){
+        additionalUserCartInfoLocalStorage = localStorage.getItem('additional_cart_info');
+    }
 
     if(userInfoLocalStorage){
     //parse user data from JSON string to JS obj
@@ -57,7 +61,10 @@ function Home(){
         const parsedUserInfo = JSON.parse(userCartInfoLocalStorage);
         //update user cart from LocalStorage
         dispatch(shoppingCartState(parsedUserInfo));
-        changeCartData(parsedUserInfo.items);
+        if(additionalUserCartInfoLocalStorage){
+            const parsedAddCartData = JSON.parse(additionalUserCartInfoLocalStorage)
+            changeCartData(parsedAddCartData);
+        }
     }
     }
 
@@ -70,6 +77,11 @@ function Home(){
     const changeCartData = (data) => {
         setCartData(data);
     }
+    const [cartDone, setCartDone] = useState(true);
+
+    const changeCartDoneFlag = () => {
+        setCartDone(done => !done);
+    }
 
     // //to store cart data
     // const [refreshCart, setRefreshCart] = useState(false);
@@ -78,7 +90,7 @@ function Home(){
     return( 
         <div className="Home">
             <BrowserRouter>
-                <NavBar params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData}/>
+                <NavBar params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData} cartDone={cartDone} changeCartDone={()=> {changeCartDoneFlag()}} setCartDone={setCartDone}/>
                 <Switch>
                     <Route exact path="/" >
                         <Info />
@@ -96,7 +108,7 @@ function Home(){
                         <EditProfile />
                     </Route>
                     <Route exact path="/products" >
-                        <ProductPage params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData}/>
+                        <ProductPage params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData} cartDone={cartDone} changeCartDone={()=> {changeCartDoneFlag()}} setCartDone={setCartDone}/>
                     </Route>
                     {/* <Route exact path="/description" >
                         <Description />

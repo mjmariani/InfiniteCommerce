@@ -104,7 +104,11 @@ function Login({cartData, changeCartData}){
             localStorage.setItem('user_data', JSON.stringify(user_data));
             //put user cart into local storage
             localStorage.setItem('user_cart', JSON.stringify(user_cart));
-            changeCartData(user_cart.items);
+            if(localStorage.getItem('additional_cart_info')){
+                const additionalUserCartInfoLocalStorage = localStorage.getItem('additional_cart_info');
+                const parsedAddCartData = JSON.parse(additionalUserCartInfoLocalStorage)
+                changeCartData(parsedAddCartData);
+            }
             //return <Redirect to="/products" />
             return history.push('/products'); //redirect to '/products' page using useHistory hook
         }catch(err){

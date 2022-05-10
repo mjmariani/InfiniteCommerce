@@ -8,7 +8,7 @@ import {useSelector, useDispatch} from "react-redux";
 import {selectUser, logoutState} from "./features/userSlice";
 import SideDrawer from "./SideDrawer";
 
-function NavBar({params, cartData, changeCartData}){
+function NavBar({params, cartData, changeCartData, cartDone, changeCartDoneFlag}){
 
     //variable used to check if user is logged in
     const userLoggedIn = useSelector(selectUser);
@@ -57,7 +57,7 @@ function NavBar({params, cartData, changeCartData}){
             <Nav.Link as={Link} to="/products">Products</Nav.Link>
             <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
             <Nav.Link to=""><ShoppingBasketIcon fontSize='small' htmlColor='white' className="cart" onClick={() => setSideToggle(!sideToggle)}/></Nav.Link>
-            <SideDrawer show={sideToggle} click={() => setSideToggle(!sideToggle)} params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData} /> 
+            <SideDrawer show={sideToggle} click={() => setSideToggle(!sideToggle)} params={params} changeCartData={(data) => changeCartData(data)} cartData={cartData} cartDone={cartDone} setCartDone={changeCartDoneFlag} /> 
           </Nav>
           </Container>
           </Navbar><br /></>
